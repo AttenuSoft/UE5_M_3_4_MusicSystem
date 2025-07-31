@@ -67,6 +67,9 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientDecoratorWrapper
 	TArray<USoundBase*> Decorator;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorWrapper")
+	TArray<FName> ProhibitedDecorators;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorWrapper")
 	FAmbientLoopInfo LoopSettings;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorWrapper")

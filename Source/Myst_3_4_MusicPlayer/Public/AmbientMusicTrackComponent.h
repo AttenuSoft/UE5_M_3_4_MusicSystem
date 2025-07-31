@@ -65,6 +65,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MusicFrequency")
 	int CurrentMusicFrequency = 5;
 
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FName>  ProhibitiedDecorators;
+
 
 protected:
 	
@@ -114,6 +117,7 @@ public:
 	UFUNCTION()
 	void OnAllTracksFadedOut(UDecoratorComponent* decorator);
 
+
 private:
 
 	const TArray<TArray<int>> MusicFrequencySettings = { {25, 70, 50, 70}, {25, 65, 45, 65}, {20, 60, 40, 60},
@@ -129,5 +133,8 @@ private:
 	void RemoveIndividualItemFromDecorator(USoundBase* DecoratorToRemove);
 	void SetTrackFrequency(int InNewFreq);
 	void SetBeatsBeforeNextTrack(int Index);
+	bool IsDecoratorCurrentlyProhibited(FName decorator);
+	void AddProhibitedDecorators(TArray<FName> decorators);
+	void RemoveProhibitedDecorators(TArray<FName> decorators);
 
 };

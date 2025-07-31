@@ -137,7 +137,8 @@ void UAmbientMusicTrackComponent::StartNewPad(TArray<FAmbientPad> pads)
 			nullptr,
 			FadeInDuration,
 			FadeOutDuration,
-			newPad.PadName
+			newPad.PadName,
+			TArray<FName>{}
 		);
 	}
 	else
@@ -160,6 +161,7 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecoratorWrap
 			SetBeatsBeforeNextTrack(1);
 			PrimaryDecoratorComponent->RegisterComponent();
 			PrimaryDecoratorComponent->OnDecoratorFinished.AddDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
+			AddProhibitedDecorators(newDecoratorWrapper.ProhibitedDecorators);
 
 			USoundBase* IndividualDecorator = SelectRandomTrack(newDecoratorWrapper.Decorator);
 			RemoveIndividualItemFromDecorator(IndividualDecorator);
@@ -171,7 +173,8 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecoratorWrap
 				newDecoratorWrapper.DecoratorOut,
 				FadeInDuration,
 				FadeOutDuration,
-				newDecoratorWrapper.DecoratorName
+				newDecoratorWrapper.DecoratorName,
+				newDecoratorWrapper.ProhibitedDecorators
 			);
 		}
 		else 
@@ -181,6 +184,7 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecoratorWrap
 			SetBeatsBeforeNextTrack(2);
 			SecondaryDecoratorComponent->RegisterComponent();
 			SecondaryDecoratorComponent->OnDecoratorFinished.AddDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
+			AddProhibitedDecorators(newDecoratorWrapper.ProhibitedDecorators);
 
 			USoundBase* IndividualDecorator = SelectRandomTrack(newDecoratorWrapper.Decorator);
 			RemoveIndividualItemFromDecorator(IndividualDecorator);
@@ -192,7 +196,8 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecoratorWrap
 				newDecoratorWrapper.DecoratorOut,
 				FadeInDuration,
 				FadeOutDuration,
-				newDecoratorWrapper.DecoratorName
+				newDecoratorWrapper.DecoratorName,
+				newDecoratorWrapper.ProhibitedDecorators
 			);
 
 		}
@@ -259,7 +264,7 @@ FAmbientDecoratorWrapper UAmbientMusicTrackComponent::SelectRandomAmbientDecorat
 	//if the decorator type is not playing and there are still valid decorators, add to temp valid array
 	for (const FAmbientDecoratorWrapper& decorator : decorators)
 	{
-		if ((!IsTrackCurrentlyPlaying(decorator.DecoratorName) && decorator.Decorator.Num() > 0))
+		if ((!IsTrackCurrentlyPlaying(decorator.DecoratorName) && decorator.Decorator.Num() > 0) && !IsDecoratorCurrentlyProhibited(decorator.DecoratorName))
 		{
 			TempValidDecorators.Add(decorator);
 		}
@@ -286,8 +291,35 @@ bool UAmbientMusicTrackComponent::IsTrackCurrentlyPlaying(FName track)
 	
 }
 
+bool UAmbientMusicTrackComponent::IsDecoratorCurrentlyProhibited(FName decorator)
+{
+	return ProhibitiedDecorators.Contains(decorator);
+}
+
+
+void UAmbientMusicTrackComponent::AddProhibitedDecorators(TArray<FName> decorators)
+{
+	for (FName decorator : decorators)
+	{
+		ProhibitiedDecorators.AddUnique(decorator);
+	}
+}
+
+void UAmbientMusicTrackComponent::RemoveProhibitedDecorators(TArray<FName> decorators)
+{
+	for (FName decorator : decorators)
+	{
+		ProhibitiedDecorators.Remove(decorator);
+	}
+}
+
 void UAmbientMusicTrackComponent::OnDecoratorFinished(UDecoratorComponent* FinishedTrack)
 {
+	if (FinishedTrack)
+	{
+		RemoveProhibitedDecorators(FinishedTrack->ProhibitedDecorators);
+	}
+
 	if (PadComponent && FinishedTrack->DecoratorName == PadComponent->DecoratorName)
 	{
 		PadComponent = nullptr;
@@ -405,4 +437,5 @@ void UAmbientMusicTrackComponent::SetBeatsBeforeNextTrack(int Index)
 	}
 	
 }
+
 

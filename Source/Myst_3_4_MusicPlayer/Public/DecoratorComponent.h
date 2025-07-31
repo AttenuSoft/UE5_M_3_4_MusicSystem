@@ -36,12 +36,16 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FName DecoratorName;
 
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FName> ProhibitedDecorators;
+
 	bool bHasLoopOut = false;
 	int MaxLoopCount = 0;
 	int NumTimesLooped = 0;
 	bool bLoopOutBound = false;
 	float FadeInDuration = 0;
 	float FadeOutDuration = 0;
+
 
 protected:
 	
@@ -52,7 +56,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	void SetupDecoratorComponent(USoundBase* track, bool bLooping, int minLoops, int maxLoops, USoundBase* LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName);
+	void SetupDecoratorComponent(USoundBase* track, bool bLooping, int minLoops, int maxLoops, USoundBase* LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName, TArray<FName> InProhibitedDecorators);
 
 	UFUNCTION()
 	void FadeDecoratorOut();

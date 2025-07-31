@@ -30,7 +30,7 @@ void UDecoratorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 }
 
-void UDecoratorComponent::SetupDecoratorComponent(USoundBase* track, bool bLooping, int minLoops, int maxLoops, USoundBase* LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName)
+void UDecoratorComponent::SetupDecoratorComponent(USoundBase* track, bool bLooping, int minLoops, int maxLoops, USoundBase* LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName, TArray<FName> InProhibitedDecorators)
 {
 	if (!track)
 	{
@@ -41,6 +41,7 @@ void UDecoratorComponent::SetupDecoratorComponent(USoundBase* track, bool bLoopi
 	FadeInDuration = InFadeInDuration;
 	FadeOutDuration = InFadeOutDuration;
 	DecoratorName = InDecoratorName;
+	ProhibitedDecorators = InProhibitedDecorators;
 
 	if (LoopOut)
 	{

@@ -84,11 +84,7 @@ void UMusicPlayerComponent::CreateNewMusicTrack(FName InTrackName)
 			//register component
 			NewTrackComponent->RegisterComponent();
 
-			//attach new component to the music player component
-			//NewTrackComponent->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-
 			//add new component to the array of active track components
-			//ActiveMusicTracks.AddUnique(NewTrackComponent);
 			ActiveMusicTracks.Add(InTrackName, NewTrackComponent);
 
 			//store new track data locally for new music track component
@@ -113,8 +109,6 @@ void UMusicPlayerComponent::CreateNewMusicTrack(FName InTrackName)
 			UAmbientMusicTrackComponent* NewTrackComponent = NewObject<UAmbientMusicTrackComponent>(this, BPClass);
 
 			NewTrackComponent->RegisterComponent();
-			//NewTrackComponent->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-			//ActiveMusicTracks.AddUnique(NewTrackComponent);
 			ActiveMusicTracks.Add(InTrackName, NewTrackComponent);
 
 			FAmbientMusicTrack* NewTrackData = CurrentMusicData->AmbientMusicTracks.Find(InTrackName);
