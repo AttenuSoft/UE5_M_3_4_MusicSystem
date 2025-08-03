@@ -7,6 +7,8 @@
 #include "Sound/SoundBase.h"
 #include "Components/AudioComponent.h"
 #include "Components/SceneComponent.h"
+#include "Engine/StreamableManager.h"
+#include "Engine/AssetManager.h"
 #include "DecoratorComponent.generated.h"
 
 
@@ -30,15 +32,17 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Callbacks")
 	FOnTrackLoopFinished OnLoopFinished;
 
-	UAudioComponent* PrimaryAudioComponent;
-	USoundBase* LoopOutTrack;
-
 	UPROPERTY(BlueprintReadOnly)
 	FName DecoratorName;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FName> ProhibitedDecorators;
 
+	UAudioComponent* PrimaryAudioComponent;
+	TSoftObjectPtr<USoundBase> LoopOutTrack;
+	TSoftObjectPtr<USoundBase> DecoratorTrack;
+
+	bool bIsLooping = false;
 	bool bHasLoopOut = false;
 	int MaxLoopCount = 0;
 	int NumTimesLooped = 0;
@@ -56,7 +60,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	void SetupDecoratorComponent(USoundBase* track, bool bLooping, int minLoops, int maxLoops, USoundBase* LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName, TArray<FName> InProhibitedDecorators);
+	void SetupDecoratorComponent(TSoftObjectPtr<USoundBase> track, bool bLooping, int minLoops, int maxLoops, TSoftObjectPtr<USoundBase> LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName, TArray<FName> InProhibitedDecorators);
 
 	UFUNCTION()
 	void FadeDecoratorOut();
@@ -66,5 +70,7 @@ public:
 
 	UFUNCTION()
 	void DecoratorFinished();
+
+	void OnDecoratorTrackLoaded();
 		
 };

@@ -8,6 +8,8 @@
 #include "Sound/SoundBase.h"
 #include "MusicDataAsset.h"
 #include "Delegates/DelegateCombinations.h"
+#include "Engine/StreamableManager.h"
+#include "Engine/AssetManager.h"
 #include "SingleMusicTrackComponent.generated.h"
 
 
@@ -19,6 +21,9 @@ class MYST_3_4_MUSICPLAYER_API USingleMusicTrackComponent : public UMusicTrackCo
 public:	
 	
 	USingleMusicTrackComponent();
+
+	UPROPERTY()
+	TSoftObjectPtr<USoundBase> SingleTrack;
 
 protected:
 	

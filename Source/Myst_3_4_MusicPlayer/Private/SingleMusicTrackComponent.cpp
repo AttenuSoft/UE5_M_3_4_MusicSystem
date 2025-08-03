@@ -30,15 +30,15 @@ void USingleMusicTrackComponent::SetupMusicComponent(FSingleMusicTrack trackData
 		FadeOutDuration = trackData.FadeSettings.FadeOutDuration;
 		NextTrack = trackData.NextTrack;
 		TrackName = trackData.TrackName;
-
-		//load track to be played and set it as the audio component's sound
-		PrimaryAudioComponent->SetSound(trackData.Track);
+		SingleTrack = trackData.Track;
 
 		//bind to on finished delegate
 		PrimaryAudioComponent->OnAudioFinished.AddDynamic(this, &USingleMusicTrackComponent::DestroyComponentOnTrackFinished);
 
-		//play or fade in the track when ready
-		PlayTrack();
+		//load track to be played
+		FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
+		Streamable.RequestAsyncLoad(SingleTrack.ToSoftObjectPath(), FStreamableDelegate::CreateUObject(this, &USingleMusicTrackComponent::PlayTrack));
+
 	}
 	else
 	{
@@ -69,14 +69,26 @@ void USingleMusicTrackComponent::DestroyComponentOnTrackFinished()
 
 void USingleMusicTrackComponent::PlayTrack()
 {
-	if (bShouldFadeIn)
+	//Make sure the sound asset was loaded successfully
+	if (SingleTrack.Get())
 	{
-		PrimaryAudioComponent->FadeIn(FadeInDuration);
+		PrimaryAudioComponent->SetSound(SingleTrack.Get());
+
+		if (bShouldFadeIn)
+		{
+			PrimaryAudioComponent->FadeIn(FadeInDuration);
+		}
+		else
+		{
+			PrimaryAudioComponent->Play();
+		}
 	}
+	//Otherwise, destroy the component
 	else
 	{
-		PrimaryAudioComponent->Play();
+		DestroyComponent();
 	}
+	
 }
 
 void USingleMusicTrackComponent::FadeTrackOut()

@@ -97,7 +97,7 @@ public:
 	void StartNewDecorator(TArray<FAmbientDecoratorWrapper> ambients, bool PrimaryDecorator);
 
 	UFUNCTION()
-	USoundBase* SelectRandomTrack(TArray<USoundBase*> tracks);
+	TSoftObjectPtr<USoundBase> SelectRandomTrack(TArray<TSoftObjectPtr<USoundBase>> tracks);
 
 	template <typename T>
 	T SelectRandomFromArray(TArray<T> tracksArray)
@@ -130,7 +130,7 @@ private:
 
 	void PopulateValidPadArray();
 	void PopulateValidDecoratorArray();
-	void RemoveIndividualItemFromDecorator(USoundBase* DecoratorToRemove);
+	void RemoveIndividualItemFromDecorator(TSoftObjectPtr<USoundBase> DecoratorToRemove);
 	void SetTrackFrequency(int InNewFreq);
 	void SetBeatsBeforeNextTrack(int Index);
 	bool IsDecoratorCurrentlyProhibited(FName decorator);

@@ -64,7 +64,7 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientDecoratorWrapper
 	FName DecoratorName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorWrapper")
-	TArray<USoundBase*> Decorator;
+	TArray<TSoftObjectPtr<USoundBase>> Decorator;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorWrapper")
 	TArray<FName> ProhibitedDecorators;
@@ -73,7 +73,7 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientDecoratorWrapper
 	FAmbientLoopInfo LoopSettings;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorWrapper")
-	USoundBase* DecoratorOut;
+	TSoftObjectPtr<USoundBase> DecoratorOut;
 
 	FORCEINLINE bool operator==(const FAmbientDecoratorWrapper& Other) const
 	{
@@ -95,7 +95,7 @@ struct MYST_3_4_MUSICPLAYER_API FSingleMusicTrack
 	FName TrackName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SingleMusicTtrack")
-	USoundBase* Track;
+	TSoftObjectPtr<USoundBase> Track;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SingleMusicTtrack")
 	FFadeSettings FadeSettings;
@@ -115,7 +115,7 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientPad
 	FName PadName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AmbientPad")
-	USoundBase* Track;
+	TSoftObjectPtr<USoundBase> Track;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AmbientPad")
 	FAmbientLoopInfo LoopSettings;

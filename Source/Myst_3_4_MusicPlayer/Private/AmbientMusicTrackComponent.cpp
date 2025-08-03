@@ -163,7 +163,7 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecoratorWrap
 			PrimaryDecoratorComponent->OnDecoratorFinished.AddDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
 			AddProhibitedDecorators(newDecoratorWrapper.ProhibitedDecorators);
 
-			USoundBase* IndividualDecorator = SelectRandomTrack(newDecoratorWrapper.Decorator);
+			TSoftObjectPtr<USoundBase> IndividualDecorator = SelectRandomTrack(newDecoratorWrapper.Decorator);
 			RemoveIndividualItemFromDecorator(IndividualDecorator);
 
 			PrimaryDecoratorComponent->SetupDecoratorComponent(IndividualDecorator,
@@ -186,7 +186,7 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecoratorWrap
 			SecondaryDecoratorComponent->OnDecoratorFinished.AddDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
 			AddProhibitedDecorators(newDecoratorWrapper.ProhibitedDecorators);
 
-			USoundBase* IndividualDecorator = SelectRandomTrack(newDecoratorWrapper.Decorator);
+			TSoftObjectPtr<USoundBase> IndividualDecorator = SelectRandomTrack(newDecoratorWrapper.Decorator);
 			RemoveIndividualItemFromDecorator(IndividualDecorator);
 
 			SecondaryDecoratorComponent->SetupDecoratorComponent(IndividualDecorator,
@@ -211,9 +211,9 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecoratorWrap
 	
 }
 
-USoundBase* UAmbientMusicTrackComponent::SelectRandomTrack(TArray<USoundBase*> tracks)
+TSoftObjectPtr<USoundBase> UAmbientMusicTrackComponent::SelectRandomTrack(TArray<TSoftObjectPtr<USoundBase>> tracks)
 {
-	USoundBase* SelectedTrack = nullptr;
+	TSoftObjectPtr<USoundBase> SelectedTrack = nullptr;
 
 	if (tracks.IsEmpty())
 	{
@@ -376,7 +376,7 @@ void UAmbientMusicTrackComponent::PopulateValidDecoratorArray()
 
 }
 
-void UAmbientMusicTrackComponent::RemoveIndividualItemFromDecorator(USoundBase* DecoratorToRemove)
+void UAmbientMusicTrackComponent::RemoveIndividualItemFromDecorator(TSoftObjectPtr<USoundBase> DecoratorToRemove)
 {
 	
 	for (int32 i = 0; i < ValidDecorators.Num(); ++i)

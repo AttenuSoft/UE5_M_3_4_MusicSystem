@@ -30,7 +30,7 @@ void UDecoratorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 }
 
-void UDecoratorComponent::SetupDecoratorComponent(USoundBase* track, bool bLooping, int minLoops, int maxLoops, USoundBase* LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName, TArray<FName> InProhibitedDecorators)
+void UDecoratorComponent::SetupDecoratorComponent(TSoftObjectPtr<USoundBase> track, bool bLooping, int minLoops, int maxLoops, TSoftObjectPtr<USoundBase> LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName, TArray<FName> InProhibitedDecorators)
 {
 	if (!track)
 	{
@@ -38,31 +38,30 @@ void UDecoratorComponent::SetupDecoratorComponent(USoundBase* track, bool bLoopi
 		DecoratorFinished();
 	}
 
+	DecoratorTrack = track;
+	LoopOutTrack = LoopOut;
 	FadeInDuration = InFadeInDuration;
 	FadeOutDuration = InFadeOutDuration;
 	DecoratorName = InDecoratorName;
 	ProhibitedDecorators = InProhibitedDecorators;
+	bIsLooping = bLooping;
+
+	FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
 
 	if (LoopOut)
 	{
 		bHasLoopOut = true;
 		LoopOutTrack = LoopOut;
+		Streamable.RequestAsyncLoad(LoopOutTrack.ToSoftObjectPath(), nullptr);
 	}
 
-	PrimaryAudioComponent->SetSound(track);
+	MaxLoopCount = FMath::RandRange(minLoops, maxLoops);
 
-	if (bLooping)
-	{
-		PrimaryAudioComponent->OnAudioFinished.AddDynamic(this, &UDecoratorComponent::PostLoopFinished);
-		MaxLoopCount = FMath::RandRange(minLoops, maxLoops);
-		PrimaryAudioComponent->FadeIn(FadeInDuration);
-	}
-	else
-	{
-		PrimaryAudioComponent->OnAudioFinished.AddDynamic(this, &UDecoratorComponent::DecoratorFinished);
-		PrimaryAudioComponent->Play(0.0f);
-	}
+	//load track to be played
 	
+	Streamable.RequestAsyncLoad(DecoratorTrack.ToSoftObjectPath(), FStreamableDelegate::CreateUObject(this, &UDecoratorComponent::OnDecoratorTrackLoaded));
+	
+
 }
 
 void UDecoratorComponent::FadeDecoratorOut()
@@ -100,9 +99,9 @@ void UDecoratorComponent::PostLoopFinished()
 				OnLoopFinished.RemoveDynamic(this, &UDecoratorComponent::PostLoopFinished);
 
 				//check if there is a loop out track
-				if (bHasLoopOut)
+				if (bHasLoopOut && LoopOutTrack.Get())
 				{
-					PrimaryAudioComponent->SetSound(LoopOutTrack);
+					PrimaryAudioComponent->SetSound(LoopOutTrack.Get());
 					bLoopOutBound = true;
 					PrimaryAudioComponent->Play(0.0f);
 				}
@@ -123,5 +122,25 @@ void UDecoratorComponent::DecoratorFinished()
 {
 	OnDecoratorFinished.Broadcast(this);
 
+}
+
+void UDecoratorComponent::OnDecoratorTrackLoaded()
+{
+	if (DecoratorTrack.Get())
+	{
+		PrimaryAudioComponent->SetSound(DecoratorTrack.Get());
+
+		if (bIsLooping)
+		{
+			PrimaryAudioComponent->OnAudioFinished.AddDynamic(this, &UDecoratorComponent::PostLoopFinished);
+			PrimaryAudioComponent->FadeIn(FadeInDuration);
+		}
+		else
+		{
+			PrimaryAudioComponent->OnAudioFinished.AddDynamic(this, &UDecoratorComponent::DecoratorFinished);
+			PrimaryAudioComponent->Play(0.0f);
+		}
+
+	}
 }
 
