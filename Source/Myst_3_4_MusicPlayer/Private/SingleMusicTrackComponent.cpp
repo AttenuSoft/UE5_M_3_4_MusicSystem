@@ -16,6 +16,10 @@ void USingleMusicTrackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	PrimaryAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("PrimaryAudioComponent"));
+	PrimaryAudioComponent->bAutoActivate = false;
+	PrimaryAudioComponent->SetupAttachment(this);
+
 }
 
 

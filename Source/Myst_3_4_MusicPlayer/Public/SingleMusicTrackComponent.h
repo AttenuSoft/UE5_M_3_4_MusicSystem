@@ -25,6 +25,9 @@ public:
 	UPROPERTY()
 	TSoftObjectPtr<USoundBase> SingleTrack;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SoundComponents")
+    UAudioComponent* PrimaryAudioComponent;
+
 protected:
 	
 	virtual void BeginPlay() override;

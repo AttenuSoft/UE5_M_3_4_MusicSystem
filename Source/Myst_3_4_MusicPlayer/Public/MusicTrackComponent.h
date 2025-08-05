@@ -24,9 +24,6 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnTrackEnd OnTrackEnd;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SoundComponents")
-    UAudioComponent* PrimaryAudioComponent;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FadeSettings")
 	bool bShouldFadeIn = false;
 

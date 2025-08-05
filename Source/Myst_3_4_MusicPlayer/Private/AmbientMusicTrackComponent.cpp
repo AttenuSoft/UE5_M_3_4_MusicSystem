@@ -226,7 +226,8 @@ TSoftObjectPtr<USoundBase> UAmbientMusicTrackComponent::SelectRandomTrack(TArray
 	}
 	else
 	{
-		SelectedTrack = tracks[FMath::RandRange(0, tracks.Num() - 1)];
+		int index = FMath::RandRange(0, tracks.Num() - 1);
+		SelectedTrack = tracks[index];
 	}
 
 	return SelectedTrack;

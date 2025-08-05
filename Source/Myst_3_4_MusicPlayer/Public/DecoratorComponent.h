@@ -9,6 +9,8 @@
 #include "Components/SceneComponent.h"
 #include "Engine/StreamableManager.h"
 #include "Engine/AssetManager.h"
+#include "TimerManager.h"
+#include "Engine/World.h"
 #include "DecoratorComponent.generated.h"
 
 
@@ -22,7 +24,6 @@ public:
 	UDecoratorComponent();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDecoratorFinished, UDecoratorComponent*, FinishedTrack);
-
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTrackLoopFinished);
 	
@@ -38,6 +39,8 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FName> ProhibitedDecorators;
 
+	FTimerHandle LoopTimerHandle;
+
 	UAudioComponent* PrimaryAudioComponent;
 	TSoftObjectPtr<USoundBase> LoopOutTrack;
 	TSoftObjectPtr<USoundBase> DecoratorTrack;
@@ -49,6 +52,8 @@ public:
 	bool bLoopOutBound = false;
 	float FadeInDuration = 0;
 	float FadeOutDuration = 0;
+	int MinLoopsCount = 0;
+	int MaxLoopsCount = 0;
 
 
 protected:
@@ -72,5 +77,6 @@ public:
 	void DecoratorFinished();
 
 	void OnDecoratorTrackLoaded();
+	void OnLoopTimerFinished();
 		
 };

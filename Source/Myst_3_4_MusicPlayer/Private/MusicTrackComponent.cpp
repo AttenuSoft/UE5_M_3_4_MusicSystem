@@ -6,10 +6,6 @@
 UMusicTrackComponent::UMusicTrackComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-
-	PrimaryAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("PrimaryAudioComponent"));
-	PrimaryAudioComponent->bAutoActivate = false;
-	PrimaryAudioComponent->SetupAttachment(this);
 	
 }
 

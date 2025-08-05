@@ -45,6 +45,8 @@ void UDecoratorComponent::SetupDecoratorComponent(TSoftObjectPtr<USoundBase> tra
 	DecoratorName = InDecoratorName;
 	ProhibitedDecorators = InProhibitedDecorators;
 	bIsLooping = bLooping;
+	MinLoopsCount = minLoops;
+	MaxLoopsCount = maxLoops;
 
 	FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
 
@@ -58,9 +60,7 @@ void UDecoratorComponent::SetupDecoratorComponent(TSoftObjectPtr<USoundBase> tra
 	MaxLoopCount = FMath::RandRange(minLoops, maxLoops);
 
 	//load track to be played
-	
 	Streamable.RequestAsyncLoad(DecoratorTrack.ToSoftObjectPath(), FStreamableDelegate::CreateUObject(this, &UDecoratorComponent::OnDecoratorTrackLoaded));
-	
 
 }
 
@@ -126,7 +126,7 @@ void UDecoratorComponent::DecoratorFinished()
 
 void UDecoratorComponent::OnDecoratorTrackLoaded()
 {
-	if (DecoratorTrack.Get())
+	/*if (DecoratorTrack.Get())
 	{
 		PrimaryAudioComponent->SetSound(DecoratorTrack.Get());
 
@@ -141,6 +141,66 @@ void UDecoratorComponent::OnDecoratorTrackLoaded()
 			PrimaryAudioComponent->Play(0.0f);
 		}
 
+	}*/
+
+	if (DecoratorTrack.Get())
+	{
+		PrimaryAudioComponent->SetSound(DecoratorTrack.Get());
+
+		if (bIsLooping)
+		{
+			float TimerDuration = 0.0f;
+
+			//determine how long
+			if (LoopOutTrack.Get())
+			{
+				TimerDuration = FMath::RandRange(MinLoopsCount, MaxLoopsCount) * DecoratorTrack->Duration;
+			}
+			else
+			{
+				TimerDuration = (FMath::RandRange(MinLoopsCount, MaxLoopsCount) * DecoratorTrack->Duration) - FadeOutDuration;
+			}
+
+			if (UWorld* World = GetWorld())
+			{
+				//setup timer for number of loops
+				World->GetTimerManager().SetTimer(
+					LoopTimerHandle,
+					this,
+					&UDecoratorComponent::OnLoopTimerFinished,
+					TimerDuration,									//duration for the timer
+					false											//does not loop, fires once
+				);
+
+				PrimaryAudioComponent->FadeIn(FadeInDuration);
+			}
+			
+		}
+		else
+		{
+			PrimaryAudioComponent->OnAudioFinished.AddDynamic(this, &UDecoratorComponent::DecoratorFinished);
+			PrimaryAudioComponent->Play(0.0f);
+		}
 	}
+
+}
+
+void UDecoratorComponent::OnLoopTimerFinished()
+{
+	PrimaryAudioComponent->OnAudioFinished.AddDynamic(this, &UDecoratorComponent::DecoratorFinished);
+	LoopTimerHandle.Invalidate();
+
+	if (LoopOutTrack.Get())
+	{
+		PrimaryAudioComponent->SetSound(LoopOutTrack.Get());
+		bLoopOutBound = true;
+		PrimaryAudioComponent->Play(0.0f);
+	}
+	else
+	{
+		
+		PrimaryAudioComponent->FadeOut(FadeOutDuration, 0);
+	}
+
 }
 
