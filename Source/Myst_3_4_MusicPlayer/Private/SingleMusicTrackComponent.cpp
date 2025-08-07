@@ -8,6 +8,10 @@ USingleMusicTrackComponent::USingleMusicTrackComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;	
 
+	PrimaryAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("PrimaryAudioComponent"));
+	PrimaryAudioComponent->bAutoActivate = false;
+	PrimaryAudioComponent->SetupAttachment(this);
+
 }
 
 
@@ -16,16 +20,14 @@ void USingleMusicTrackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PrimaryAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("PrimaryAudioComponent"));
-	PrimaryAudioComponent->bAutoActivate = false;
-	PrimaryAudioComponent->SetupAttachment(this);
+
 
 }
 
 
 void USingleMusicTrackComponent::SetupMusicComponent(FSingleMusicTrack trackData)
 {
-	if (trackData.Track)
+	if (trackData.Track.ToSoftObjectPath().IsValid())
 	{
 		//Set fade in/out settings
 		bShouldFadeIn = trackData.FadeSettings.bShouldFadeIn;
@@ -99,6 +101,7 @@ void USingleMusicTrackComponent::FadeTrackOut()
 {
 if (PrimaryAudioComponent)
 	{
+		bTrackFadingOut = true;
 		bProceedToNextTrack = false;
 		PrimaryAudioComponent->FadeOut(FadeOutDuration, 0.0f);
 	}

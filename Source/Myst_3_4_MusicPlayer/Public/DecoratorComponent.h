@@ -24,14 +24,9 @@ public:
 	UDecoratorComponent();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDecoratorFinished, UDecoratorComponent*, FinishedTrack);
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTrackLoopFinished);
 	
 	UPROPERTY(BlueprintAssignable, Category = "Callbacks")
 	FOnDecoratorFinished OnDecoratorFinished;
-
-	UPROPERTY(BlueprintAssignable, Category = "Callbacks")
-	FOnTrackLoopFinished OnLoopFinished;
 
 	UPROPERTY(BlueprintReadOnly)
 	FName DecoratorName;
@@ -75,6 +70,9 @@ public:
 
 	UFUNCTION()
 	void DecoratorFinished();
+
+	UFUNCTION()
+	void OnComponentDestroyed(bool bDestroyingHierarchy) override;
 
 	void OnDecoratorTrackLoaded();
 	void OnLoopTimerFinished();

@@ -42,6 +42,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TrackInfo")
 	FName NextTrack;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TrackInfo")
+	bool bTrackFadingOut = false;
+
 	bool bProceedToNextTrack = true;
 
 

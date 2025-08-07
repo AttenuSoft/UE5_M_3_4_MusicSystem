@@ -60,7 +60,7 @@ public:
 	TArray<FAmbientPad> ValidPads;
 
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FAmbientDecoratorWrapper> ValidDecorators;
+	TArray<FAmbientDecorator> ValidDecorators;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MusicFrequency")
 	int CurrentMusicFrequency = 5;
@@ -94,7 +94,7 @@ public:
 	void StartNewPad(TArray<FAmbientPad> pads);
 
 	UFUNCTION()
-	void StartNewDecorator(TArray<FAmbientDecoratorWrapper> ambients, bool PrimaryDecorator);
+	void StartNewDecorator(TArray<FAmbientDecorator> ambients, bool PrimaryDecorator);
 
 	UFUNCTION()
 	TSoftObjectPtr<USoundBase> SelectRandomTrack(TArray<TSoftObjectPtr<USoundBase>> tracks);
@@ -107,15 +107,12 @@ public:
 
 	FAmbientPad SelectRandomAmbientPad(TArray<FAmbientPad> pads);
 
-	FAmbientDecoratorWrapper SelectRandomAmbientDecorator(TArray<FAmbientDecoratorWrapper> ambients);
+	FAmbientDecorator SelectRandomAmbientDecorator(TArray<FAmbientDecorator> ambients);
 
 	bool IsTrackCurrentlyPlaying(FName track);
 
 	UFUNCTION()
-	void OnDecoratorFinished(UDecoratorComponent* FinishedTrack);
-
-	UFUNCTION()
-	void OnAllTracksFadedOut(UDecoratorComponent* decorator);
+	void OnAllTracksFadedOut();
 
 
 private:

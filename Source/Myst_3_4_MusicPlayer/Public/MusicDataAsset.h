@@ -56,26 +56,29 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientLoopInfo
 
 
 USTRUCT(BlueprintType)
-struct MYST_3_4_MUSICPLAYER_API FAmbientDecoratorWrapper
+struct MYST_3_4_MUSICPLAYER_API FAmbientDecorator
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorWrapper")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
 	FName DecoratorName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorWrapper")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
 	TArray<TSoftObjectPtr<USoundBase>> Decorator;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorWrapper")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
 	TArray<FName> ProhibitedDecorators;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorWrapper")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
 	FAmbientLoopInfo LoopSettings;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorWrapper")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
 	TSoftObjectPtr<USoundBase> DecoratorOut;
 
-	FORCEINLINE bool operator==(const FAmbientDecoratorWrapper& Other) const
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
+	FFadeSettings FadeSettings;
+
+	FORCEINLINE bool operator==(const FAmbientDecorator& Other) const
 	{
 		return DecoratorName == Other.DecoratorName;
 	}
@@ -120,6 +123,9 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientPad
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AmbientPad")
 	FAmbientLoopInfo LoopSettings;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AmbientPad")
+	FFadeSettings FadeSettings;
+
 	FORCEINLINE bool operator==(const FAmbientPad& Other) const
 	{
 		return PadName == Other.PadName; 
@@ -146,7 +152,7 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientMusicTrack
 	float BeatsPerMinute = 60;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AmbientMusicTrack")
-	TArray<FAmbientDecoratorWrapper> Decorators;
+	TArray<FAmbientDecorator> Decorators;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AmbientMusicTrack")
 	FFadeSettings FadeSettings;
