@@ -143,7 +143,7 @@ void UDecoratorComponent::OnDecoratorTrackLoaded()
 
 		if (bIsLooping)
 		{
-			float TimerDuration = 0.0f;
+		float TimerDuration = 0.0f;
 
 			//determine how long
 			if (LoopOutTrack.Get())

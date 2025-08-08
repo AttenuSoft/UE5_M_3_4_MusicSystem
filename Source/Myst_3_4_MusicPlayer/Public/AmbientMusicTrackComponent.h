@@ -114,6 +114,9 @@ public:
 	UFUNCTION()
 	void OnAllTracksFadedOut();
 
+	UFUNCTION()
+	void OnDecoratorFinished(UDecoratorComponent* FinishedTrack);
+
 
 private:
 

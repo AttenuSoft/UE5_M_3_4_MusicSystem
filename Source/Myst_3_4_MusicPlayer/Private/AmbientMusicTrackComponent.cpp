@@ -36,14 +36,17 @@ void UAmbientMusicTrackComponent::FadeTrackOut()
 	//if any of the decorator components are valid, instruct them to fade out
 	if (PadComponent)
 	{
+		PadComponent->OnDecoratorFinished.RemoveDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
 		PadComponent->FadeDecoratorOut();
 	}
 	if (PrimaryDecoratorComponent)
 	{
+		PrimaryDecoratorComponent->OnDecoratorFinished.RemoveDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
 		PrimaryDecoratorComponent->FadeDecoratorOut();
 	}
 	if (SecondaryDecoratorComponent)
 	{
+		SecondaryDecoratorComponent->OnDecoratorFinished.RemoveDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
 		SecondaryDecoratorComponent->FadeDecoratorOut();
 	}
 
@@ -104,7 +107,7 @@ void UAmbientMusicTrackComponent::SetupMusicComponent(FAmbientMusicTrack TrackDa
 
 		UWorld* world = GetWorld();
 		QuartzSubsystem = world->GetSubsystem<UQuartzSubsystem>();
-
+		
 		if (!QuartzSubsystem)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Quartz clock failed to initialize, destroying component"));
@@ -138,7 +141,7 @@ void UAmbientMusicTrackComponent::StartNewPad(TArray<FAmbientPad> pads)
 		{
 			PadComponent = NewObject<UDecoratorComponent>(this, UDecoratorComponent::StaticClass(), FName("PadDecorator"), RF_Transient);
 			PadComponent->RegisterComponent();
-
+			PadComponent->OnDecoratorFinished.AddDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
 			SetBeatsBeforeNextTrack(0);
 			PadComponent->SetupDecoratorComponent(newPad.Track,
 				newPad.LoopSettings.bShouldLoop,
@@ -160,6 +163,34 @@ void UAmbientMusicTrackComponent::StartNewPad(TArray<FAmbientPad> pads)
 
 }
 
+void UAmbientMusicTrackComponent::OnDecoratorFinished(UDecoratorComponent* FinishedTrack)
+{
+	if (FinishedTrack)
+	{
+		RemoveProhibitedDecorators(FinishedTrack->ProhibitedDecorators);
+
+		if (PadComponent && FinishedTrack->DecoratorName == PadComponent->DecoratorName)
+		{
+			PadComponent->OnDecoratorFinished.RemoveDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
+			PadComponent = nullptr;
+		}
+		else if (PrimaryDecoratorComponent && FinishedTrack->DecoratorName == PrimaryDecoratorComponent->DecoratorName)
+		{
+			PrimaryDecoratorComponent->OnDecoratorFinished.RemoveDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
+			PrimaryDecoratorComponent = nullptr;
+		}
+		else if (SecondaryDecoratorComponent && FinishedTrack->DecoratorName == SecondaryDecoratorComponent->DecoratorName)
+		{
+			SecondaryDecoratorComponent->OnDecoratorFinished.RemoveDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
+			SecondaryDecoratorComponent = nullptr;
+		}
+
+		FinishedTrack->DestroyComponent();
+
+	}
+
+}
+
 void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecorator> decorators, bool PrimaryDecorator)
 {
 	if (!bTrackFadingOut)
@@ -171,7 +202,7 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecorator> de
 			if (PrimaryDecorator)
 			{
 				PrimaryDecoratorComponent = NewObject<UDecoratorComponent>(this, UDecoratorComponent::StaticClass(), FName("PrimaryDecorator"), RF_Transient);
-
+				PrimaryDecoratorComponent->OnDecoratorFinished.AddDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
 				SetBeatsBeforeNextTrack(1);
 				PrimaryDecoratorComponent->RegisterComponent();
 				AddProhibitedDecorators(newDecoratorWrapper.ProhibitedDecorators);
@@ -197,7 +228,7 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecorator> de
 				SetBeatsBeforeNextTrack(2);
 				SecondaryDecoratorComponent->RegisterComponent();
 				AddProhibitedDecorators(newDecoratorWrapper.ProhibitedDecorators);
-
+				SecondaryDecoratorComponent->OnDecoratorFinished.AddDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
 				TSoftObjectPtr<USoundBase> IndividualDecorator = SelectRandomTrack(newDecoratorWrapper.Decorator);
 				RemoveIndividualItemFromDecorator(IndividualDecorator);
 
