@@ -30,13 +30,13 @@ void USingleMusicTrackComponent::SetupMusicComponent(FSingleMusicTrack trackData
 	if (trackData.Track.ToSoftObjectPath().IsValid())
 	{
 		//Set fade in/out settings
-		bShouldFadeIn = trackData.FadeSettings.bShouldFadeIn;
 		FadeInDuration = trackData.FadeSettings.FadeInDuration;
-		bShouldFadeOut = trackData.FadeSettings.bShouldFadeOut;
 		FadeOutDuration = trackData.FadeSettings.FadeOutDuration;
 		NextTrack = trackData.NextTrack;
 		TrackName = trackData.TrackName;
 		SingleTrack = trackData.Track;
+
+		PrimaryAudioComponent->SetVolumeMultiplier(trackData.Volume);
 
 		//bind to on finished delegate
 		PrimaryAudioComponent->OnAudioFinished.AddDynamic(this, &USingleMusicTrackComponent::DestroyComponentOnTrackFinished);
@@ -80,7 +80,7 @@ void USingleMusicTrackComponent::PlayTrack()
 	{
 		PrimaryAudioComponent->SetSound(SingleTrack.Get());
 
-		if (bShouldFadeIn)
+		if (FadeInDuration > 0.0f)
 		{
 			PrimaryAudioComponent->FadeIn(FadeInDuration);
 		}

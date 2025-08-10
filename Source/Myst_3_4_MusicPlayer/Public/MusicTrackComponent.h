@@ -25,13 +25,7 @@ public:
 	FOnTrackEnd OnTrackEnd;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FadeSettings")
-	bool bShouldFadeIn = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FadeSettings")
 	float FadeInDuration = 0.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FadeSettings")
-	bool bShouldFadeOut = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FadeSettings")
 	float FadeOutDuration = 0.0f;

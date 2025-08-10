@@ -38,22 +38,20 @@ void UAmbientMusicTrackComponent::FadeTrackOut()
 	{
 		PadComponent->OnDecoratorFinished.RemoveDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
 		PadComponent->FadeDecoratorOut();
+		PadComponent = nullptr;
 	}
 	if (PrimaryDecoratorComponent)
 	{
 		PrimaryDecoratorComponent->OnDecoratorFinished.RemoveDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
 		PrimaryDecoratorComponent->FadeDecoratorOut();
+		PrimaryDecoratorComponent = nullptr;
 	}
 	if (SecondaryDecoratorComponent)
 	{
 		SecondaryDecoratorComponent->OnDecoratorFinished.RemoveDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
 		SecondaryDecoratorComponent->FadeDecoratorOut();
+		SecondaryDecoratorComponent = nullptr;
 	}
-
-	//set all decorator pointers to nullptr
-	PadComponent = nullptr;
-	PrimaryDecoratorComponent = nullptr;
-	SecondaryDecoratorComponent = nullptr;
 
 	//destroy this component after handling all spawned components
 	OnAllTracksFadedOut();
@@ -98,12 +96,9 @@ void UAmbientMusicTrackComponent::SetupMusicComponent(FAmbientMusicTrack TrackDa
 {
 	if (!TrackData.Pads.IsEmpty())
 	{
-		//Set fade in/out settings
-		bShouldFadeIn = TrackData.FadeSettings.bShouldFadeIn;
-		FadeInDuration = TrackData.FadeSettings.FadeInDuration;
-		bShouldFadeOut = TrackData.FadeSettings.bShouldFadeOut;
+		//Set fade out settings - ambient track as a whole cannot fade in, only out
+		DecoratorClock = TrackName = TrackData.TrackName;
 		FadeOutDuration = TrackData.FadeSettings.FadeOutDuration;
-		DecoratorClock =TrackName = TrackData.TrackName;
 
 		UWorld* world = GetWorld();
 		QuartzSubsystem = world->GetSubsystem<UQuartzSubsystem>();
@@ -119,47 +114,10 @@ void UAmbientMusicTrackComponent::SetupMusicComponent(FAmbientMusicTrack TrackDa
 		PopulateValidPadArray();
 		PopulateValidDecoratorArray();
 
+		//setup Quartz clock, done in Blueprint child  class
 		SetupQuartzClock(TrackData.BeatsPerMinute);
 
 	}
-
-}
-
-
-void UAmbientMusicTrackComponent::SetupQuartzClock_Implementation(float BeatsPerMinute)
-{
-	//overridden in blueprint
-}
-
-void UAmbientMusicTrackComponent::StartNewPad(TArray<FAmbientPad> pads)
-{
-	if (!bTrackFadingOut)
-	{
-		FAmbientPad newPad = SelectRandomAmbientPad(pads);
-
-		if (newPad.PadName != "" && newPad.PadName.ToString().Len() > 0)
-		{
-			PadComponent = NewObject<UDecoratorComponent>(this, UDecoratorComponent::StaticClass(), FName("PadDecorator"), RF_Transient);
-			PadComponent->RegisterComponent();
-			PadComponent->OnDecoratorFinished.AddDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
-			SetBeatsBeforeNextTrack(0);
-			PadComponent->SetupDecoratorComponent(newPad.Track,
-				newPad.LoopSettings.bShouldLoop,
-				newPad.LoopSettings.MinNumLoops,
-				newPad.LoopSettings.MaxNumLoops,
-				nullptr,
-				FadeInDuration,
-				FadeOutDuration,
-				newPad.PadName,
-				TArray<FName>{}
-			);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("Pad track collision, skipping creating new pad (not sure that's possible, but juuuuust in case."));
-		}
-	}
-	
 
 }
 
@@ -191,13 +149,51 @@ void UAmbientMusicTrackComponent::OnDecoratorFinished(UDecoratorComponent* Finis
 
 }
 
+void UAmbientMusicTrackComponent::SetupQuartzClock_Implementation(float BeatsPerMinute)
+{
+	//overridden in blueprint
+}
+
+void UAmbientMusicTrackComponent::StartNewPad(TArray<FAmbientPad> pads)
+{
+	if (!bTrackFadingOut)
+	{
+		FAmbientPad newPad = SelectRandomAmbientPad(pads);
+
+		if (newPad.PadName != "" && newPad.PadName.ToString().Len() > 0)
+		{
+			PadComponent = NewObject<UDecoratorComponent>(this, UDecoratorComponent::StaticClass(), FName("PadDecorator"), RF_Transient);
+			PadComponent->RegisterComponent();
+			PadComponent->OnDecoratorFinished.AddDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
+			SetBeatsBeforeNextTrack(0);
+			PadComponent->SetupDecoratorComponent(newPad.Track,
+				newPad.LoopSettings.bShouldLoop,
+				newPad.LoopSettings.MinNumLoops,
+				newPad.LoopSettings.MaxNumLoops,
+				nullptr,
+				newPad.FadeSettings.FadeInDuration,
+				newPad.FadeSettings.FadeOutDuration,
+				newPad.PadName,
+				TArray<FName>{},
+				newPad.Volume
+			);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Pad track collision, skipping creating new pad (not sure that's possible, but juuuuust in case."));
+		}
+	}
+	
+
+}
+
 void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecorator> decorators, bool PrimaryDecorator)
 {
 	if (!bTrackFadingOut)
 	{
-		FAmbientDecorator newDecoratorWrapper = SelectRandomAmbientDecorator(decorators);
+		FAmbientDecorator newDecorator = SelectRandomAmbientDecorator(decorators);
 
-		if (newDecoratorWrapper.Decorator.Num() > 0)
+		if (newDecorator.Decorator.Num() > 0)
 		{
 			if (PrimaryDecorator)
 			{
@@ -205,20 +201,21 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecorator> de
 				PrimaryDecoratorComponent->OnDecoratorFinished.AddDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
 				SetBeatsBeforeNextTrack(1);
 				PrimaryDecoratorComponent->RegisterComponent();
-				AddProhibitedDecorators(newDecoratorWrapper.ProhibitedDecorators);
+				AddProhibitedDecorators(newDecorator.ProhibitedDecorators);
 
-				TSoftObjectPtr<USoundBase> IndividualDecorator = SelectRandomTrack(newDecoratorWrapper.Decorator);
+				TSoftObjectPtr<USoundBase> IndividualDecorator = SelectTrack(newDecorator.Decorator, newDecorator.bShouoldPlayInOrder);
 				RemoveIndividualItemFromDecorator(IndividualDecorator);
 
 				PrimaryDecoratorComponent->SetupDecoratorComponent(IndividualDecorator,
-					newDecoratorWrapper.LoopSettings.bShouldLoop,
-					newDecoratorWrapper.LoopSettings.MinNumLoops,
-					newDecoratorWrapper.LoopSettings.MaxNumLoops,
-					newDecoratorWrapper.DecoratorOut,
-					FadeInDuration,
-					FadeOutDuration,
-					newDecoratorWrapper.DecoratorName,
-					newDecoratorWrapper.ProhibitedDecorators
+					newDecorator.LoopSettings.bShouldLoop,
+					newDecorator.LoopSettings.MinNumLoops,
+					newDecorator.LoopSettings.MaxNumLoops,
+					newDecorator.DecoratorOut,
+					newDecorator.FadeSettings.FadeInDuration,
+					newDecorator.FadeSettings.FadeOutDuration,
+					newDecorator.DecoratorName,
+					newDecorator.ProhibitedDecorators,
+					newDecorator.Volume
 				);
 			}
 			else
@@ -227,20 +224,21 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecorator> de
 
 				SetBeatsBeforeNextTrack(2);
 				SecondaryDecoratorComponent->RegisterComponent();
-				AddProhibitedDecorators(newDecoratorWrapper.ProhibitedDecorators);
+				AddProhibitedDecorators(newDecorator.ProhibitedDecorators);
 				SecondaryDecoratorComponent->OnDecoratorFinished.AddDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
-				TSoftObjectPtr<USoundBase> IndividualDecorator = SelectRandomTrack(newDecoratorWrapper.Decorator);
+				TSoftObjectPtr<USoundBase> IndividualDecorator = SelectTrack(newDecorator.Decorator, newDecorator.bShouoldPlayInOrder);
 				RemoveIndividualItemFromDecorator(IndividualDecorator);
 
 				SecondaryDecoratorComponent->SetupDecoratorComponent(IndividualDecorator,
-					newDecoratorWrapper.LoopSettings.bShouldLoop,
-					newDecoratorWrapper.LoopSettings.MinNumLoops,
-					newDecoratorWrapper.LoopSettings.MaxNumLoops,
-					newDecoratorWrapper.DecoratorOut,
-					FadeInDuration,
-					FadeOutDuration,
-					newDecoratorWrapper.DecoratorName,
-					newDecoratorWrapper.ProhibitedDecorators
+					newDecorator.LoopSettings.bShouldLoop,
+					newDecorator.LoopSettings.MinNumLoops,
+					newDecorator.LoopSettings.MaxNumLoops,
+					newDecorator.DecoratorOut,
+					newDecorator.FadeSettings.FadeInDuration,
+					newDecorator.FadeSettings.FadeOutDuration,
+					newDecorator.DecoratorName,
+					newDecorator.ProhibitedDecorators,
+					newDecorator.Volume
 				);
 
 			}
@@ -253,7 +251,7 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecorator> de
 	
 }
 
-TSoftObjectPtr<USoundBase> UAmbientMusicTrackComponent::SelectRandomTrack(TArray<TSoftObjectPtr<USoundBase>> tracks)
+TSoftObjectPtr<USoundBase> UAmbientMusicTrackComponent::SelectTrack(TArray<TSoftObjectPtr<USoundBase>> tracks, bool bInPlayInOrder)
 {
 	TSoftObjectPtr<USoundBase> SelectedTrack = nullptr;
 
@@ -268,7 +266,13 @@ TSoftObjectPtr<USoundBase> UAmbientMusicTrackComponent::SelectRandomTrack(TArray
 	}
 	else
 	{
-		int index = FMath::RandRange(0, tracks.Num() - 1);
+		int index = 0;
+
+		if (!bInPlayInOrder)
+		{
+			index = FMath::RandRange(0, tracks.Num() - 1);
+		}
+
 		SelectedTrack = tracks[index];
 	}
 

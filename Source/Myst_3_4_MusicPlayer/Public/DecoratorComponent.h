@@ -40,6 +40,11 @@ public:
 	TSoftObjectPtr<USoundBase> LoopOutTrack;
 	TSoftObjectPtr<USoundBase> DecoratorTrack;
 
+	USoundBase* LoadedDecoratorTrack;
+	USoundBase* LoadedOutTrack;
+
+	TSharedPtr<FStreamableHandle> DecoratorHandle;
+
 	bool bIsLooping = false;
 	bool bHasLoopOut = false;
 	int MaxLoopCount = 0;
@@ -60,13 +65,12 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	void SetupDecoratorComponent(TSoftObjectPtr<USoundBase> track, bool bLooping, int minLoops, int maxLoops, TSoftObjectPtr<USoundBase> LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName, TArray<FName> InProhibitedDecorators);
+	void SetupDecoratorComponent(TSoftObjectPtr<USoundBase> track, bool bLooping, int minLoops, int maxLoops
+	, TSoftObjectPtr<USoundBase> LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName
+	, TArray<FName> InProhibitedDecorators, float InVolume);
 
 	UFUNCTION()
 	void FadeDecoratorOut();
-
-	UFUNCTION()
-	void PostLoopFinished();
 
 	UFUNCTION()
 	void DecoratorFinished();

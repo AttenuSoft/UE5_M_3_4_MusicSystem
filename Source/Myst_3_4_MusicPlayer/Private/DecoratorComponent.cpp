@@ -30,7 +30,7 @@ void UDecoratorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 }
 
-void UDecoratorComponent::SetupDecoratorComponent(TSoftObjectPtr<USoundBase> track, bool bLooping, int minLoops, int maxLoops, TSoftObjectPtr<USoundBase> LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName, TArray<FName> InProhibitedDecorators)
+void UDecoratorComponent::SetupDecoratorComponent(TSoftObjectPtr<USoundBase> track, bool bLooping, int minLoops, int maxLoops, TSoftObjectPtr<USoundBase> LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName, TArray<FName> InProhibitedDecorators, float InVolume)
 {
 	if (!track.ToSoftObjectPath().IsValid())
 	{
@@ -39,7 +39,6 @@ void UDecoratorComponent::SetupDecoratorComponent(TSoftObjectPtr<USoundBase> tra
 	}
 
 	DecoratorTrack = track;
-	LoopOutTrack = LoopOut;
 	FadeInDuration = InFadeInDuration;
 	FadeOutDuration = InFadeOutDuration;
 	DecoratorName = InDecoratorName;
@@ -48,19 +47,28 @@ void UDecoratorComponent::SetupDecoratorComponent(TSoftObjectPtr<USoundBase> tra
 	MinLoopsCount = minLoops;
 	MaxLoopsCount = maxLoops;
 
-	FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
-
-	if (LoopOut)
-	{
-		bHasLoopOut = true;
-		LoopOutTrack = LoopOut;
-		Streamable.RequestAsyncLoad(LoopOutTrack.ToSoftObjectPath(), nullptr);
-	}
+	PrimaryAudioComponent->SetVolumeMultiplier(InVolume);
 
 	MaxLoopCount = FMath::RandRange(minLoops, maxLoops);
 
+	//create an array of paths to load
+	TArray<FSoftObjectPath> AssetsToLoad;
+
+	//if there is an out track, add it to array
+	if (!LoopOutTrack.ToSoftObjectPath().IsNull())
+	{
+		bHasLoopOut = true;
+		LoopOutTrack = LoopOut;
+		AssetsToLoad.Add(LoopOutTrack.ToSoftObjectPath());
+	}
+
+	//add decorator track to array
+	AssetsToLoad.Add(DecoratorTrack.ToSoftObjectPath());
+
 	//load track to be played
-	Streamable.RequestAsyncLoad(DecoratorTrack.ToSoftObjectPath(), FStreamableDelegate::CreateUObject(this, &UDecoratorComponent::OnDecoratorTrackLoaded));
+	DecoratorHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(AssetsToLoad,
+		FStreamableDelegate::CreateUObject(this, &UDecoratorComponent::OnDecoratorTrackLoaded)
+	);
 
 }
 
@@ -75,50 +83,6 @@ void UDecoratorComponent::FadeDecoratorOut()
 
 }
 
-void UDecoratorComponent::PostLoopFinished()
-{
-	
-	if (bLoopOutBound)
-	{
-		DecoratorFinished();
-	}
-	else
-	{
-		NumTimesLooped += 1;
-
-		//no loop out, one loop left - fading out last loop
-		if (!bHasLoopOut && (NumTimesLooped == MaxLoopCount - 1))
-		{
-			PrimaryAudioComponent->OnAudioFinished.AddDynamic(this, &UDecoratorComponent::DecoratorFinished);
-			PrimaryAudioComponent->Play(0.0f);
-			float TrackDuration = PrimaryAudioComponent->Sound->GetDuration();
-			PrimaryAudioComponent->FadeOut(TrackDuration, 0);
-		}
-		//still has remaining loops
-		else
-		{
-			//max num loops reached
-			if (NumTimesLooped >= MaxLoopCount)
-			{
-				//check if there is a loop out track
-				if (bHasLoopOut && LoopOutTrack.Get())
-				{
-					PrimaryAudioComponent->SetSound(LoopOutTrack.Get());
-					bLoopOutBound = true;
-					PrimaryAudioComponent->Play(0.0f);
-				}
-		
-			}
-			//continue to play the next track's loop
-			else
-			{
-				PrimaryAudioComponent->Play(0.0f);
-			}
-		}
-
-	}
-
-}
 
 void UDecoratorComponent::OnComponentDestroyed(bool bDestroyingHierarchy)
 {
@@ -130,6 +94,10 @@ void UDecoratorComponent::OnComponentDestroyed(bool bDestroyingHierarchy)
 
 void UDecoratorComponent::DecoratorFinished()
 {	
+	DecoratorHandle->ReleaseHandle();
+	DecoratorHandle.Reset();
+	LoadedDecoratorTrack = nullptr;
+	LoadedOutTrack = nullptr;
 	OnDecoratorFinished.Broadcast(this);
 	DestroyComponent();
 }
@@ -139,7 +107,14 @@ void UDecoratorComponent::OnDecoratorTrackLoaded()
 
 	if (DecoratorTrack.Get())
 	{
-		PrimaryAudioComponent->SetSound(DecoratorTrack.Get());
+		LoadedDecoratorTrack = DecoratorTrack.Get();
+
+		if (bHasLoopOut)
+		{
+			LoadedOutTrack = LoopOutTrack.Get();
+		}
+
+		PrimaryAudioComponent->SetSound(LoadedDecoratorTrack);
 
 		if (bIsLooping)
 		{
@@ -196,4 +171,6 @@ void UDecoratorComponent::OnLoopTimerFinished()
 	}
 
 }
+
+
 

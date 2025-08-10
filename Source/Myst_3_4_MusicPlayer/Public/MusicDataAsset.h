@@ -25,16 +25,10 @@ struct MYST_3_4_MUSICPLAYER_API FFadeSettings
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FadeSettings")
-	bool bShouldFadeIn = false;
+	float FadeInDuration = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FadeSettings")
-	float FadeInDuration = 1.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FadeSettings")
-	bool bShouldFadeOut = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FadeSettings")
-	float FadeOutDuration = 1.0f;
+	float FadeOutDuration = 0.0f;
 };
 
 
@@ -66,6 +60,12 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientDecorator
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
 	TArray<TSoftObjectPtr<USoundBase>> Decorator;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", ClampMax = "4.0"))
+	float Volume = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
+	bool bShouoldPlayInOrder = true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
 	TArray<FName> ProhibitedDecorators;
 
@@ -75,12 +75,13 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientDecorator
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
 	TSoftObjectPtr<USoundBase> DecoratorOut;
 
+	//fade settings for this specific decorator, not the ambient track as a whole
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
 	FFadeSettings FadeSettings;
 
 	FORCEINLINE bool operator==(const FAmbientDecorator& Other) const
 	{
-		return DecoratorName == Other.DecoratorName;
+		return (DecoratorName == Other.DecoratorName);
 	}
 
 };
@@ -99,6 +100,9 @@ struct MYST_3_4_MUSICPLAYER_API FSingleMusicTrack
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SingleMusicTtrack")
 	TSoftObjectPtr<USoundBase> Track;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", ClampMax = "4.0"))
+	float Volume = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SingleMusicTtrack")
 	FFadeSettings FadeSettings;
@@ -119,6 +123,12 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientPad
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AmbientPad")
 	TSoftObjectPtr<USoundBase> Track;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", ClampMax = "4.0"))
+	float Volume = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
+	bool bShouoldPlayInOrder = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AmbientPad")
 	FAmbientLoopInfo LoopSettings;
@@ -154,6 +164,7 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientMusicTrack
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AmbientMusicTrack")
 	TArray<FAmbientDecorator> Decorators;
 
+	//fade settings for when the ambient track fades as a whole
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AmbientMusicTrack")
 	FFadeSettings FadeSettings;
 

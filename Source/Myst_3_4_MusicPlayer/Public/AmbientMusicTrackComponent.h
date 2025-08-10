@@ -97,7 +97,7 @@ public:
 	void StartNewDecorator(TArray<FAmbientDecorator> ambients, bool PrimaryDecorator);
 
 	UFUNCTION()
-	TSoftObjectPtr<USoundBase> SelectRandomTrack(TArray<TSoftObjectPtr<USoundBase>> tracks);
+	TSoftObjectPtr<USoundBase> SelectTrack(TArray<TSoftObjectPtr<USoundBase>> tracks, bool bInPlayInOrder);
 
 	template <typename T>
 	T SelectRandomFromArray(TArray<T> tracksArray)
@@ -125,6 +125,8 @@ private:
 															{10, 40, 20, 40}, {10, 35, 15, 35}, {5, 30, 10, 30}, 
 															{5, 25, 5, 25} };
 
+
+	//integer constraints for how often music is allowed to play
 	const int MusicFreqMin = 0;
 	const int MusicFreqMax = 9;
 
