@@ -120,12 +120,6 @@ public:
 
 private:
 
-	const TArray<TArray<int>> MusicFrequencySettings = { {25, 70, 50, 70}, {25, 65, 45, 65}, {20, 60, 40, 60},
-															{20, 55, 35, 55}, {15, 50, 30, 50}, {15, 45, 25, 45},
-															{10, 40, 20, 40}, {10, 35, 15, 35}, {5, 30, 10, 30}, 
-															{5, 25, 5, 25} };
-
-
 	//integer constraints for how often music is allowed to play
 	const int MusicFreqMin = 0;
 	const int MusicFreqMax = 9;

@@ -87,6 +87,55 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientDecorator
 };
 
 
+USTRUCT(BlueprintType)
+struct MYST_3_4_MUSICPLAYER_API FDelaySettings
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DelaySettings")
+	int MinDelayBeforeNext_Pad;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DelaySettings")
+	int MaxDelayBeforeNext_Pad;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DelaySettings")
+	int MinDelayBeforeNext_Decorator;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DelaySettings")
+	int MaxDelayBeforeNext_Decorator;
+
+	
+
+	static constexpr int32 StockFrequencySettings[10][4] = {{25, 70, 50, 70}, {25, 65, 45, 65}, {20, 60, 40, 60},
+													{20, 55, 35, 55}, {15, 50, 30, 50}, {15, 45, 25, 45},
+													{10, 40, 20, 40}, {10, 35, 15, 35}, {5, 30, 10, 30},
+													{5, 25, 5, 25} };
+
+	FDelaySettings()
+		: MinDelayBeforeNext_Pad(0), MaxDelayBeforeNext_Pad(0),
+		MinDelayBeforeNext_Decorator(0), MaxDelayBeforeNext_Decorator(0)
+	{}
+
+	explicit FDelaySettings(int32 Index)
+	{
+
+		if (Index >= 0 && Index < 10)
+		{
+			MinDelayBeforeNext_Pad = StockFrequencySettings[Index][0];
+			MaxDelayBeforeNext_Pad = StockFrequencySettings[Index][1];
+			MinDelayBeforeNext_Decorator = StockFrequencySettings[Index][2];
+			MaxDelayBeforeNext_Decorator = StockFrequencySettings[Index][3];
+		}
+		else
+		{
+			// Fallback values
+			MinDelayBeforeNext_Pad = MaxDelayBeforeNext_Pad =
+				MinDelayBeforeNext_Decorator = MaxDelayBeforeNext_Decorator = 0;
+		}
+	}
+};
+
+
 
 USTRUCT(BlueprintType)
 struct MYST_3_4_MUSICPLAYER_API FSingleMusicTrack
@@ -167,6 +216,27 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientMusicTrack
 	//fade settings for when the ambient track fades as a whole
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AmbientMusicTrack")
 	FFadeSettings FadeSettings;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DelaySettings")
+	int StartingDelay_Pad = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DelaySettings")
+	int StartingDelay_PrimaryDecorator = 12;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DelaySettings")
+	int StartingDelay_SecondaryDecorator = 24;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditFixedSize), Category = "AmbientMusicTrack")
+	TArray<FDelaySettings> FrequencySettings;
+
+	FAmbientMusicTrack()
+	{
+		FrequencySettings.SetNum(10);
+		for (int32 i = 0; i < FrequencySettings.Num(); ++i)
+		{
+			FrequencySettings[i] = FDelaySettings(i);
+		}
+	}
 
 };
 

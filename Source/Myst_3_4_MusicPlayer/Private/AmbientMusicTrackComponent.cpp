@@ -16,8 +16,6 @@ void UAmbientMusicTrackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-
 }
 
 
@@ -110,6 +108,10 @@ void UAmbientMusicTrackComponent::SetupMusicComponent(FAmbientMusicTrack TrackDa
 		}
 
 		ThisTrack = TrackData;
+
+		BeatsBeforeNextTrack[0] = ThisTrack.StartingDelay_Pad;
+		BeatsBeforeNextTrack[1] = ThisTrack.StartingDelay_PrimaryDecorator;
+		BeatsBeforeNextTrack[2] = ThisTrack.StartingDelay_SecondaryDecorator;
 
 		PopulateValidPadArray();
 		PopulateValidDecoratorArray();
@@ -454,11 +456,13 @@ void UAmbientMusicTrackComponent::SetBeatsBeforeNextTrack(int Index)
 {
 	if (Index == 0)
 	{
-		BeatsBeforeNextTrack[Index] = FMath::RandRange(MusicFrequencySettings[CurrentMusicFrequency][0], MusicFrequencySettings[CurrentMusicFrequency][1]);
+		BeatsBeforeNextTrack[Index] = FMath::RandRange(ThisTrack.FrequencySettings[CurrentMusicFrequency].MinDelayBeforeNext_Pad, 
+			ThisTrack.FrequencySettings[CurrentMusicFrequency].MaxDelayBeforeNext_Pad);
 	}
 	else
 	{
-		BeatsBeforeNextTrack[Index] = FMath::RandRange(MusicFrequencySettings[CurrentMusicFrequency][2], MusicFrequencySettings[CurrentMusicFrequency][3]);
+		BeatsBeforeNextTrack[Index] = FMath::RandRange(ThisTrack.FrequencySettings[CurrentMusicFrequency].MinDelayBeforeNext_Decorator, 
+			ThisTrack.FrequencySettings[CurrentMusicFrequency].MaxDelayBeforeNext_Decorator);
 	}
 	
 }
