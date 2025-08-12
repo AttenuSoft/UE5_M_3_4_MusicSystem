@@ -27,6 +27,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<int> BeatsBeforeNextTrack = {0, 12, 24};	//Pad, primary decorator, secondary decorator
 
+	UPROPERTY(BlueprintReadOnly)
+	TArray<int> BeatsSinceLastTrack = { 0, 0, 0 };
+
 
 	//Quartz clock timer variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quartz")
@@ -117,12 +120,14 @@ public:
 	UFUNCTION()
 	void OnDecoratorFinished(UDecoratorComponent* FinishedTrack);
 
-
-private:
-
 	//integer constraints for how often music is allowed to play
 	const int MusicFreqMin = 0;
 	const int MusicFreqMax = 9;
+
+	void SetBeatsBeforeNextTrack_FrequencyChange(int Index);
+
+
+private:
 
 	void PopulateValidPadArray();
 	void PopulateValidDecoratorArray();

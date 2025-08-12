@@ -20,6 +20,11 @@ public:
 	
 	UMusicPlayerComponent();
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAmbientComponentCreated, UAmbientMusicTrackComponent*, AmbientTrack);
+
+	UPROPERTY(BlueprintAssignable, Category = "Callbacks")
+	FOnAmbientComponentCreated OnAmbientComponentCreated;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MusicData")
 	UMusicDataAsset* CurrentMusicData;
 
@@ -55,6 +60,13 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void StopAllMusicTracks();
+
+	UFUNCTION(BlueprintCallable)
+	void SetNewMusicFrequency(int InFrequency);
+
+	UFUNCTION(BlueprintCallable)
+	int GetCurrentMusicFrequency();
+
 
 private:
 

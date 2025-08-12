@@ -62,30 +62,36 @@ void UAmbientMusicTrackComponent::PlayTrack()
 	if (BeatsBeforeNextTrack[0] <= 0 && PadComponent == nullptr)
 	{
 		StartNewPad(ValidPads);
+		BeatsSinceLastTrack[0] = 0;
 	}
 	if(PadComponent == nullptr)
 	{
 		BeatsBeforeNextTrack[0]--;
+		BeatsSinceLastTrack[0]++;
 	}
 
 	//check if can play new primary decorator
 	if (BeatsBeforeNextTrack[1] <= 0 && PrimaryDecoratorComponent == nullptr)
 	{
 		StartNewDecorator(ValidDecorators, true);
+		BeatsSinceLastTrack[1] = 0;
 	}
 	if(PrimaryDecoratorComponent == nullptr)
 	{
 		BeatsBeforeNextTrack[1]--;
+		BeatsSinceLastTrack[1]++;
 	}
 
 	//check if can play new secondary decorator
 	if (BeatsBeforeNextTrack[2] <= 0 && SecondaryDecoratorComponent == nullptr)
 	{
 		StartNewDecorator(ValidDecorators, false);
+		BeatsSinceLastTrack[2] = 0;
 	}
 	if(SecondaryDecoratorComponent == nullptr)
 	{
 		BeatsBeforeNextTrack[2]--;
+		BeatsSinceLastTrack[2]++;
 	}
 
 }
@@ -465,6 +471,33 @@ void UAmbientMusicTrackComponent::SetBeatsBeforeNextTrack(int Index)
 			ThisTrack.FrequencySettings[CurrentMusicFrequency].MaxDelayBeforeNext_Decorator);
 	}
 	
+}
+
+void UAmbientMusicTrackComponent::SetBeatsBeforeNextTrack_FrequencyChange(int Index)
+{
+	int NewBeats = 0;
+
+	if (Index == 0)
+	{
+		NewBeats = FMath::RandRange(ThisTrack.FrequencySettings[CurrentMusicFrequency].MinDelayBeforeNext_Pad,
+			ThisTrack.FrequencySettings[CurrentMusicFrequency].MaxDelayBeforeNext_Pad);
+	}
+	else
+	{
+		NewBeats = FMath::RandRange(ThisTrack.FrequencySettings[CurrentMusicFrequency].MinDelayBeforeNext_Decorator,
+			ThisTrack.FrequencySettings[CurrentMusicFrequency].MaxDelayBeforeNext_Decorator);
+	}
+
+	NewBeats -= BeatsSinceLastTrack[Index];
+
+	if (NewBeats < 0)
+	{
+		NewBeats = 0;
+	}
+
+	BeatsBeforeNextTrack[Index] = NewBeats;
+
+
 }
 
 

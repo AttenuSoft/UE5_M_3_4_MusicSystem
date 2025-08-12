@@ -114,6 +114,9 @@ void UMusicPlayerComponent::CreateNewMusicTrack(FName InTrackName)
 			FAmbientMusicTrack* NewTrackData = CurrentMusicData->AmbientMusicTracks.Find(InTrackName);
 			NewTrackComponent->SetupMusicComponent(*NewTrackData);
 			NewTrackComponent->OnTrackEnd.AddDynamic(this, &UMusicPlayerComponent::OnMusicComponentTrackEnded);
+
+			OnAmbientComponentCreated.Broadcast(NewTrackComponent);
+
 		}
 		//track name not found, log error message
 		else
@@ -159,6 +162,46 @@ void UMusicPlayerComponent::StopAllMusicTracks()
 		track->FadeTrackOut();
 		ActiveMusicTracks.Remove(key);
 	}
+}
+
+void UMusicPlayerComponent::SetNewMusicFrequency(int InFrequency)
+{
+	for (auto trackIterator = ActiveMusicTracks.CreateConstIterator(); trackIterator; ++trackIterator)
+	{
+		const FName key = trackIterator.Key();
+		UMusicTrackComponent* track = trackIterator.Value();
+
+		if (UAmbientMusicTrackComponent* Ambient = Cast<UAmbientMusicTrackComponent>(track))
+		{
+			if (InFrequency >= Ambient->MusicFreqMin && InFrequency <= Ambient->MusicFreqMax)
+			{
+				Ambient->CurrentMusicFrequency = InFrequency;
+				Ambient->SetBeatsBeforeNextTrack_FrequencyChange(0);
+				Ambient->SetBeatsBeforeNextTrack_FrequencyChange(1);
+				Ambient->SetBeatsBeforeNextTrack_FrequencyChange(2);
+			}
+			
+		}
+	}
+}
+
+
+
+int UMusicPlayerComponent::GetCurrentMusicFrequency()
+{
+	for (auto trackIterator = ActiveMusicTracks.CreateConstIterator(); trackIterator; ++trackIterator)
+	{
+		const FName key = trackIterator.Key();
+		UMusicTrackComponent* track = trackIterator.Value();
+
+		if (UAmbientMusicTrackComponent* Ambient = Cast<UAmbientMusicTrackComponent>(track))
+		{
+			return Ambient->CurrentMusicFrequency;
+		}
+
+	}
+
+	return 0;
 }
 
 bool UMusicPlayerComponent::IsActiveMusicTrack(FName InMusicTrack)
