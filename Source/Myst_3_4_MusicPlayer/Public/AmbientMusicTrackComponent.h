@@ -66,7 +66,7 @@ public:
 	TArray<FAmbientDecorator> ValidDecorators;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MusicFrequency")
-	int CurrentMusicFrequency = 5;
+	int CurrentMusicFrequency = 9;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FName>  ProhibitiedDecorators;
