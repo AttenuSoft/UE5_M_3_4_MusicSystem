@@ -19,9 +19,6 @@ USingleMusicTrackComponent::USingleMusicTrackComponent()
 void USingleMusicTrackComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-
-
 }
 
 
@@ -92,7 +89,7 @@ void USingleMusicTrackComponent::PlayTrack()
 	//Otherwise, destroy the component
 	else
 	{
-		DestroyComponent();
+		DestroyComponentOnTrackFinished();
 	}
 	
 }

@@ -8,8 +8,8 @@
 #include "Sound/SoundBase.h"
 #include "MusicDataAsset.h"
 #include "Delegates/DelegateCombinations.h"
-#include "Engine/StreamableManager.h"
 #include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
 #include "SingleMusicTrackComponent.generated.h"
 
 

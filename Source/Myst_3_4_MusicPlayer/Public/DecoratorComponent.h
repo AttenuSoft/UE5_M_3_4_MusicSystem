@@ -9,6 +9,8 @@
 #include "Components/SceneComponent.h"
 #include "Engine/StreamableManager.h"
 #include "Engine/AssetManager.h"
+#include "Quartz/AudioMixerClockHandle.h"
+#include "Quartz/QuartzSubsystem.h"
 #include "TimerManager.h"
 #include "Engine/World.h"
 #include "DecoratorComponent.generated.h"
@@ -33,9 +35,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FName> ProhibitedDecorators;
-
 	FTimerHandle LoopTimerHandle;
-
 	UAudioComponent* PrimaryAudioComponent;
 	TSoftObjectPtr<USoundBase> LoopOutTrack;
 	TSoftObjectPtr<USoundBase> DecoratorTrack;
@@ -44,6 +44,13 @@ public:
 	USoundBase* LoadedOutTrack;
 
 	TSharedPtr<FStreamableHandle> DecoratorHandle;
+
+	//Quartz clock properties
+	FQuartzQuantizationBoundary QuantizationBoundary;
+	UQuartzClockHandle* ClockHandle;
+	UQuartzSubsystem* QuartzSubsystem;
+	FOnQuartzCommandEventBP DecoratorStartedPlaying;
+	EQuartzCommandDelegateSubType EventType;
 
 	bool bIsLooping = false;
 	bool bHasLoopOut = false;
@@ -54,6 +61,7 @@ public:
 	float FadeOutDuration = 0;
 	int MinLoopsCount = 0;
 	int MaxLoopsCount = 0;
+	float TimerDuration = 0;
 
 
 protected:
@@ -65,9 +73,10 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	void SetupDecoratorComponent(TSoftObjectPtr<USoundBase> track, bool bLooping, int minLoops, int maxLoops
-	, TSoftObjectPtr<USoundBase> LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName
-	, TArray<FName> InProhibitedDecorators, float InVolume);
+	void SetupDecoratorComponent(TSoftObjectPtr<USoundBase> track, bool bLooping, int minLoops, int maxLoops, 
+		TSoftObjectPtr<USoundBase> LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName,
+		TArray<FName> InProhibitedDecorators, float InVolume, FQuartzQuantizationBoundary InQuantizationBoundary,
+		UQuartzClockHandle* InClockHandle, UQuartzSubsystem* InQuartzSubsystem);
 
 	UFUNCTION()
 	void FadeDecoratorOut();
@@ -80,5 +89,9 @@ public:
 
 	void OnDecoratorTrackLoaded();
 	void OnLoopTimerFinished();
+	void PlayQuanitizedDecorator();
+
+	UFUNCTION()
+	void FireLoopTimer(EQuartzCommandDelegateSubType InEventType, FName InDecoratorName);
 		
 };

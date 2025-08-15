@@ -30,7 +30,6 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<int> BeatsSinceLastTrack = { 0, 0, 0 };
 
-
 	//Quartz clock timer variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quartz")
 	UQuartzSubsystem* QuartzSubsystem;
@@ -44,6 +43,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quartz")
 	FName DecoratorClock;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quartz")
+	FQuartzQuantizationBoundary QuantizationBoundary;
+
 
 	//Active spawned track components
 	UPROPERTY(BlueprintReadOnly)
@@ -56,8 +58,6 @@ public:
 	UDecoratorComponent* SecondaryDecoratorComponent;
 
 	FAmbientMusicTrack ThisTrack;
-
-	const int MaxSpawnedComponentCount = 3;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FAmbientPad> ValidPads;

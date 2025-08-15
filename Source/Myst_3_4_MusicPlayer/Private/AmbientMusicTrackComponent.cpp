@@ -16,6 +16,10 @@ void UAmbientMusicTrackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	QuantizationBoundary.Quantization = EQuartzCommandQuantization::Beat;					 //Could be Bar, HalfNote, QuarterNote, etc.
+	QuantizationBoundary.Multiplier = 1.0f;													 //How many of that quantization unit to wait
+	QuantizationBoundary.CountingReferencePoint = EQuarztQuantizationReference::Count;	     
+
 }
 
 
@@ -183,7 +187,10 @@ void UAmbientMusicTrackComponent::StartNewPad(TArray<FAmbientPad> pads)
 				newPad.FadeSettings.FadeOutDuration,
 				newPad.PadName,
 				TArray<FName>{},
-				newPad.Volume
+				newPad.Volume,
+				QuantizationBoundary,
+				DecoratorClockHandle,
+				QuartzSubsystem
 			);
 		}
 		else
@@ -211,7 +218,7 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecorator> de
 				PrimaryDecoratorComponent->RegisterComponent();
 				AddProhibitedDecorators(newDecorator.ProhibitedDecorators);
 
-				TSoftObjectPtr<USoundBase> IndividualDecorator = SelectTrack(newDecorator.Decorator, newDecorator.bShouoldPlayInOrder);
+				TSoftObjectPtr<USoundBase> IndividualDecorator = SelectTrack(newDecorator.Decorator, newDecorator.bShouldPlayInOrder);
 				RemoveIndividualItemFromDecorator(IndividualDecorator);
 
 				PrimaryDecoratorComponent->SetupDecoratorComponent(IndividualDecorator,
@@ -223,7 +230,10 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecorator> de
 					newDecorator.FadeSettings.FadeOutDuration,
 					newDecorator.DecoratorName,
 					newDecorator.ProhibitedDecorators,
-					newDecorator.Volume
+					newDecorator.Volume,
+					QuantizationBoundary,
+					DecoratorClockHandle,
+					QuartzSubsystem
 				);
 			}
 			else
@@ -234,7 +244,7 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecorator> de
 				SecondaryDecoratorComponent->RegisterComponent();
 				AddProhibitedDecorators(newDecorator.ProhibitedDecorators);
 				SecondaryDecoratorComponent->OnDecoratorFinished.AddDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
-				TSoftObjectPtr<USoundBase> IndividualDecorator = SelectTrack(newDecorator.Decorator, newDecorator.bShouoldPlayInOrder);
+				TSoftObjectPtr<USoundBase> IndividualDecorator = SelectTrack(newDecorator.Decorator, newDecorator.bShouldPlayInOrder);
 				RemoveIndividualItemFromDecorator(IndividualDecorator);
 
 				SecondaryDecoratorComponent->SetupDecoratorComponent(IndividualDecorator,
@@ -246,7 +256,10 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecorator> de
 					newDecorator.FadeSettings.FadeOutDuration,
 					newDecorator.DecoratorName,
 					newDecorator.ProhibitedDecorators,
-					newDecorator.Volume
+					newDecorator.Volume,
+					QuantizationBoundary,
+					DecoratorClockHandle,
+					QuartzSubsystem
 				);
 
 			}

@@ -30,7 +30,9 @@ void UDecoratorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 }
 
-void UDecoratorComponent::SetupDecoratorComponent(TSoftObjectPtr<USoundBase> track, bool bLooping, int minLoops, int maxLoops, TSoftObjectPtr<USoundBase> LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName, TArray<FName> InProhibitedDecorators, float InVolume)
+void UDecoratorComponent::SetupDecoratorComponent(TSoftObjectPtr<USoundBase> track, bool bLooping, int minLoops, int maxLoops, 
+	TSoftObjectPtr<USoundBase> LoopOut, float InFadeInDuration, float InFadeOutDuration, FName InDecoratorName, TArray<FName> InProhibitedDecorators, 
+	float InVolume, FQuartzQuantizationBoundary InQuantizationBoundary,UQuartzClockHandle* InClockHandle, UQuartzSubsystem* InQuartzSubsystem)
 {
 	if (!track.ToSoftObjectPath().IsValid())
 	{
@@ -47,6 +49,10 @@ void UDecoratorComponent::SetupDecoratorComponent(TSoftObjectPtr<USoundBase> tra
 	MinLoopsCount = minLoops;
 	MaxLoopsCount = maxLoops;
 
+	ClockHandle = InClockHandle;
+	QuantizationBoundary = InQuantizationBoundary;
+	QuartzSubsystem = InQuartzSubsystem;
+
 	PrimaryAudioComponent->SetVolumeMultiplier(InVolume);
 
 	MaxLoopCount = FMath::RandRange(minLoops, maxLoops);
@@ -55,7 +61,7 @@ void UDecoratorComponent::SetupDecoratorComponent(TSoftObjectPtr<USoundBase> tra
 	TArray<FSoftObjectPath> AssetsToLoad;
 
 	//if there is an out track, add it to array
-	if (!LoopOutTrack.ToSoftObjectPath().IsNull())
+	if (!LoopOut.ToSoftObjectPath().IsNull())
 	{
 		bHasLoopOut = true;
 		LoopOutTrack = LoopOut;
@@ -118,7 +124,6 @@ void UDecoratorComponent::OnDecoratorTrackLoaded()
 
 		if (bIsLooping)
 		{
-		float TimerDuration = 0.0f;
 
 			//determine how long
 			if (LoopOutTrack.Get())
@@ -130,7 +135,11 @@ void UDecoratorComponent::OnDecoratorTrackLoaded()
 				TimerDuration = (FMath::RandRange(MinLoopsCount, MaxLoopsCount) * DecoratorTrack->Duration) - FadeOutDuration;
 			}
 
-			if (UWorld* World = GetWorld())
+			//FireLoopTimer(EventType, DecoratorName);
+
+			PlayQuanitizedDecorator();
+
+			/*if (UWorld* World = GetWorld())
 			{
 				//setup timer for number of loops
 				World->GetTimerManager().SetTimer(
@@ -141,14 +150,18 @@ void UDecoratorComponent::OnDecoratorTrackLoaded()
 					false											//does not loop, fires once
 				);
 
-				PrimaryAudioComponent->FadeIn(FadeInDuration);
-			}
+				
+				//PrimaryAudioComponent->FadeIn(FadeInDuration);
+			}*/
 			
 		}
 		else
 		{
 			PrimaryAudioComponent->OnAudioFinished.AddDynamic(this, &UDecoratorComponent::DecoratorFinished);
-			PrimaryAudioComponent->Play(0.0f);
+			
+			PlayQuanitizedDecorator();
+
+			//PrimaryAudioComponent->Play(0.0f);
 		}
 	}
 
@@ -172,5 +185,37 @@ void UDecoratorComponent::OnLoopTimerFinished()
 
 }
 
+void UDecoratorComponent::PlayQuanitizedDecorator()
+{
+	if (bIsLooping)
+	{
+		DecoratorStartedPlaying.BindDynamic(this, &UDecoratorComponent::FireLoopTimer);
+	}
+	
+	PrimaryAudioComponent->PlayQuantized(
+		GetWorld(),				// WorldContextObject
+		ClockHandle,			// Clock handle
+		QuantizationBoundary,	// Quantization settings
+		DecoratorStartedPlaying,// On-start delegate
+		0.0f,					// Start time (offset)
+		FadeInDuration,			// Fade-in duration
+		1.0f,					// Fade volume level
+		EAudioFaderCurve::Linear
+	);
+}
 
+void UDecoratorComponent::FireLoopTimer(EQuartzCommandDelegateSubType InEventType, FName InDecoratorName)
+{
+	if (UWorld* World = GetWorld())
+	{
+		//setup timer for number of loops
+		World->GetTimerManager().SetTimer(
+			LoopTimerHandle,
+			this,
+			&UDecoratorComponent::OnLoopTimerFinished,
+			TimerDuration,									//duration for the timer
+			false											//does not loop, fires once
+		);
+	}
+}
 

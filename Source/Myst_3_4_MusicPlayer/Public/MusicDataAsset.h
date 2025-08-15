@@ -64,7 +64,7 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientDecorator
 	float Volume = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
-	bool bShouoldPlayInOrder = true;
+	bool bShouldPlayInOrder = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
 	TArray<FName> ProhibitedDecorators;
