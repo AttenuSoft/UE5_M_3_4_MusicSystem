@@ -68,7 +68,7 @@ void UAmbientMusicTrackComponent::PlayTrack()
 		StartNewPad(ValidPads);
 		BeatsSinceLastTrack[0] = 0;
 	}
-	if(PadComponent == nullptr)
+	else if(PadComponent == nullptr)
 	{
 		BeatsBeforeNextTrack[0]--;
 		BeatsSinceLastTrack[0]++;
@@ -80,7 +80,7 @@ void UAmbientMusicTrackComponent::PlayTrack()
 		StartNewDecorator(ValidDecorators, true);
 		BeatsSinceLastTrack[1] = 0;
 	}
-	if(PrimaryDecoratorComponent == nullptr)
+	else if(PrimaryDecoratorComponent == nullptr)
 	{
 		BeatsBeforeNextTrack[1]--;
 		BeatsSinceLastTrack[1]++;
@@ -92,7 +92,7 @@ void UAmbientMusicTrackComponent::PlayTrack()
 		StartNewDecorator(ValidDecorators, false);
 		BeatsSinceLastTrack[2] = 0;
 	}
-	if(SecondaryDecoratorComponent == nullptr)
+	else if(SecondaryDecoratorComponent == nullptr)
 	{
 		BeatsBeforeNextTrack[2]--;
 		BeatsSinceLastTrack[2]++;
@@ -186,7 +186,7 @@ void UAmbientMusicTrackComponent::StartNewPad(TArray<FAmbientPad> pads)
 				newPad.FadeSettings.FadeInDuration,
 				newPad.FadeSettings.FadeOutDuration,
 				newPad.PadName,
-				TArray<FName>{},
+				newPad.ProhibitedDecorators,
 				newPad.Volume,
 				QuantizationBoundary,
 				DecoratorClockHandle,
@@ -310,6 +310,9 @@ FAmbientPad UAmbientMusicTrackComponent::SelectRandomAmbientPad(TArray<FAmbientP
 	}
 
 	FAmbientPad SelectedPad = ValidPads[FMath::RandRange(0, ValidPads.Num() - 1)];
+
+	//add prohibited decorators to array
+	AddProhibitedDecorators(SelectedPad.ProhibitedDecorators);
 
 	//remove the selected pad from the valid pads array
 	ValidPads.Remove(SelectedPad);

@@ -135,24 +135,7 @@ void UDecoratorComponent::OnDecoratorTrackLoaded()
 				TimerDuration = (FMath::RandRange(MinLoopsCount, MaxLoopsCount) * DecoratorTrack->Duration) - FadeOutDuration;
 			}
 
-			//FireLoopTimer(EventType, DecoratorName);
-
 			PlayQuanitizedDecorator();
-
-			/*if (UWorld* World = GetWorld())
-			{
-				//setup timer for number of loops
-				World->GetTimerManager().SetTimer(
-					LoopTimerHandle,
-					this,
-					&UDecoratorComponent::OnLoopTimerFinished,
-					TimerDuration,									//duration for the timer
-					false											//does not loop, fires once
-				);
-
-				
-				//PrimaryAudioComponent->FadeIn(FadeInDuration);
-			}*/
 			
 		}
 		else
@@ -161,7 +144,6 @@ void UDecoratorComponent::OnDecoratorTrackLoaded()
 			
 			PlayQuanitizedDecorator();
 
-			//PrimaryAudioComponent->Play(0.0f);
 		}
 	}
 

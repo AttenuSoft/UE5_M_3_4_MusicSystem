@@ -179,6 +179,9 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientPad
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
 	bool bShouoldPlayInOrder = true;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
+	TArray<FName> ProhibitedDecorators;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AmbientPad")
 	FAmbientLoopInfo LoopSettings;
 
