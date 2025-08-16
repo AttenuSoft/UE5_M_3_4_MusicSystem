@@ -35,22 +35,27 @@ void UAmbientMusicTrackComponent::FadeTrackOut()
 {	
 	bTrackFadingOut = true;
 
+	PopAllSoundMixes();
+
 	//if any of the decorator components are valid, instruct them to fade out
 	if (PadComponent)
 	{
 		PadComponent->OnDecoratorFinished.RemoveDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
+		PadComponent->FadeOutDuration = ThisTrack.FadeSettings.FadeOutDuration;
 		PadComponent->FadeDecoratorOut();
 		PadComponent = nullptr;
 	}
 	if (PrimaryDecoratorComponent)
 	{
 		PrimaryDecoratorComponent->OnDecoratorFinished.RemoveDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
+		PrimaryDecoratorComponent->FadeOutDuration = ThisTrack.FadeSettings.FadeOutDuration;
 		PrimaryDecoratorComponent->FadeDecoratorOut();
 		PrimaryDecoratorComponent = nullptr;
 	}
 	if (SecondaryDecoratorComponent)
 	{
 		SecondaryDecoratorComponent->OnDecoratorFinished.RemoveDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
+		SecondaryDecoratorComponent->FadeOutDuration = ThisTrack.FadeSettings.FadeOutDuration;
 		SecondaryDecoratorComponent->FadeDecoratorOut();
 		SecondaryDecoratorComponent = nullptr;
 	}
@@ -138,6 +143,7 @@ void UAmbientMusicTrackComponent::OnDecoratorFinished(UDecoratorComponent* Finis
 	if (FinishedTrack)
 	{
 		RemoveProhibitedDecorators(FinishedTrack->ProhibitedDecorators);
+		PopSoundMixes(FinishedTrack->DecoratorName);
 
 		if (PadComponent && FinishedTrack->DecoratorName == PadComponent->DecoratorName)
 		{
@@ -218,6 +224,8 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecorator> de
 				PrimaryDecoratorComponent->RegisterComponent();
 				AddProhibitedDecorators(newDecorator.ProhibitedDecorators);
 
+				PushSoundMixes(newDecorator.DecoratorName, newDecorator.SoundMixes);
+
 				TSoftObjectPtr<USoundBase> IndividualDecorator = SelectTrack(newDecorator.Decorator, newDecorator.bShouldPlayInOrder);
 				RemoveIndividualItemFromDecorator(IndividualDecorator);
 
@@ -244,6 +252,9 @@ void UAmbientMusicTrackComponent::StartNewDecorator(TArray<FAmbientDecorator> de
 				SecondaryDecoratorComponent->RegisterComponent();
 				AddProhibitedDecorators(newDecorator.ProhibitedDecorators);
 				SecondaryDecoratorComponent->OnDecoratorFinished.AddDynamic(this, &UAmbientMusicTrackComponent::OnDecoratorFinished);
+
+				PushSoundMixes(newDecorator.DecoratorName, newDecorator.SoundMixes);
+
 				TSoftObjectPtr<USoundBase> IndividualDecorator = SelectTrack(newDecorator.Decorator, newDecorator.bShouldPlayInOrder);
 				RemoveIndividualItemFromDecorator(IndividualDecorator);
 
@@ -381,6 +392,73 @@ void UAmbientMusicTrackComponent::RemoveProhibitedDecorators(TArray<FName> decor
 	for (FName decorator : decorators)
 	{
 		ProhibitiedDecorators.Remove(decorator);
+	}
+}
+
+void UAmbientMusicTrackComponent::PushSoundMixes(FName InDecoratorName, TArray<USoundMix*> InSoundMixes)
+{
+	if (InSoundMixes.Num() > 0)
+	{
+		UWorld* World = GetWorld();
+
+		if (World)
+		{
+			FAudioDeviceHandle AudioDevice = World->GetAudioDevice();
+
+			for (USoundMix* Mix : InSoundMixes)
+			{
+				AppliedSoundMixes.Add(InDecoratorName, Mix);
+				AudioDevice->PushSoundMixModifier(Mix);
+			}
+
+		}
+	}
+	
+}
+
+void UAmbientMusicTrackComponent::PopSoundMixes(FName InDecoratorName)
+{
+	//get world pointer
+	UWorld* World = GetWorld();
+
+	//if pointer is valid, pop soundmixes
+	if (World)
+	{
+		FAudioDeviceHandle AudioDevice = World->GetAudioDevice();
+
+		for (auto SoundMixIterator = AppliedSoundMixes.CreateConstIterator(); SoundMixIterator; ++SoundMixIterator)
+		{
+			//for each key in AppliedSoundMixes TMap
+			const FName key = SoundMixIterator.Key();
+
+			//if the decorator name is the same as the key
+			if (key == InDecoratorName)
+			{
+				//get the value of the element in AppliedSoundMixes TMap and pop it from the audio device
+				USoundMix* Mix = SoundMixIterator.Value();
+				AudioDevice->PopSoundMixModifier(Mix);
+				AppliedSoundMixes.Remove(key);
+			}
+
+		}
+
+	}
+
+}
+
+void UAmbientMusicTrackComponent::PopAllSoundMixes()
+{
+	if (PadComponent)
+	{
+		PopSoundMixes(PadComponent->DecoratorName);
+	}
+	if (PrimaryDecoratorComponent)
+	{
+		PopSoundMixes(PrimaryDecoratorComponent->DecoratorName);
+	}
+	if (SecondaryDecoratorComponent)
+	{
+		PopSoundMixes(SecondaryDecoratorComponent->DecoratorName);
 	}
 }
 

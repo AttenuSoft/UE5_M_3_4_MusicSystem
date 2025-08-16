@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "DecoratorComponent.h"
 
 
@@ -128,7 +127,7 @@ void UDecoratorComponent::OnDecoratorTrackLoaded()
 			//determine how long
 			if (LoopOutTrack.Get())
 			{
-				TimerDuration = FMath::RandRange(MinLoopsCount, MaxLoopsCount) * DecoratorTrack->Duration;
+				TimerDuration = FMath::RandRange(MinLoopsCount, MaxLoopsCount) * DecoratorTrack->Duration - 0.05f;
 			}
 			else
 			{
@@ -157,7 +156,6 @@ void UDecoratorComponent::OnLoopTimerFinished()
 	if (LoopOutTrack.Get())
 	{
 		PrimaryAudioComponent->SetSound(LoopOutTrack.Get());
-		bLoopOutBound = true;
 		PrimaryAudioComponent->Play(0.0f);
 	}
 	else
@@ -198,6 +196,7 @@ void UDecoratorComponent::FireLoopTimer(EQuartzCommandDelegateSubType InEventTyp
 			TimerDuration,									//duration for the timer
 			false											//does not loop, fires once
 		);
+
 	}
 }
 

@@ -71,6 +71,8 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FName>  ProhibitiedDecorators;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SoundMix")
+	TMap<FName, USoundMix*> AppliedSoundMixes;
 
 protected:
 	
@@ -137,5 +139,8 @@ private:
 	bool IsDecoratorCurrentlyProhibited(FName decorator);
 	void AddProhibitedDecorators(TArray<FName> decorators);
 	void RemoveProhibitedDecorators(TArray<FName> decorators);
+	void PushSoundMixes(FName InDecoratorName, TArray<USoundMix*> InSoundMixes);
+	void PopSoundMixes(FName InDecoratorName);
+	void PopAllSoundMixes();
 
 };

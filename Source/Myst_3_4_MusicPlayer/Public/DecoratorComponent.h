@@ -56,7 +56,6 @@ public:
 	bool bHasLoopOut = false;
 	int MaxLoopCount = 0;
 	int NumTimesLooped = 0;
-	bool bLoopOutBound = false;
 	float FadeInDuration = 0;
 	float FadeOutDuration = 0;
 	int MinLoopsCount = 0;

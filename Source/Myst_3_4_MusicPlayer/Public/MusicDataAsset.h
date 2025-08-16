@@ -16,6 +16,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "Sound/SoundBase.h"
+#include "AudioDevice.h"
 #include "MusicDataAsset.generated.h"
 
 
@@ -65,6 +66,9 @@ struct MYST_3_4_MUSICPLAYER_API FAmbientDecorator
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
 	bool bShouldPlayInOrder = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
+	TArray<USoundMix*> SoundMixes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DecoratorTrack")
 	TArray<FName> ProhibitedDecorators;
