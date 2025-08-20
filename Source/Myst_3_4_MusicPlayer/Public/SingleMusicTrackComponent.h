@@ -22,6 +22,16 @@ public:
 	
 	USingleMusicTrackComponent();
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSingleMusicTrackStarted);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSingleMusicTrackStopped);
+
+	UPROPERTY(BlueprintAssignable, Category = "Callbacks")
+	FOnSingleMusicTrackStarted OnSingleMusicTrackStarted;
+
+	UPROPERTY(BlueprintAssignable, Category = "Callbacks")
+	FOnSingleMusicTrackStopped OnSingleMusicTrackStopped;
+
+
 	UPROPERTY()
 	TSoftObjectPtr<USoundBase> SingleTrack;
 

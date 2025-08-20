@@ -60,6 +60,8 @@ void USingleMusicTrackComponent::DestroyComponentOnTrackFinished()
 {
 	PrimaryAudioComponent->OnAudioFinished.RemoveDynamic(this, &USingleMusicTrackComponent::DestroyComponentOnTrackFinished);
 
+	OnSingleMusicTrackStopped.Broadcast();
+
 	if (bProceedToNextTrack)
 	{
 		OnTrackEnd.Broadcast(TrackName, NextTrack);
@@ -85,6 +87,7 @@ void USingleMusicTrackComponent::PlayTrack()
 		{
 			PrimaryAudioComponent->Play();
 		}
+		OnSingleMusicTrackStarted.Broadcast();
 	}
 	//Otherwise, destroy the component
 	else
@@ -98,6 +101,7 @@ void USingleMusicTrackComponent::FadeTrackOut()
 {
 if (PrimaryAudioComponent)
 	{
+		OnSingleMusicTrackStopped.Broadcast();
 		bTrackFadingOut = true;
 		bProceedToNextTrack = false;
 		PrimaryAudioComponent->FadeOut(FadeOutDuration, 0.0f);
