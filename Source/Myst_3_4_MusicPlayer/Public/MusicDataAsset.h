@@ -1,14 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
-/*
-	Class: MusicDataAsset
-	Author: Andrew Sales
-	Description: Defines all music for a specific age. 
-				 SingleMusicTracks are complete, individual songs, such as "Full" or "Inst" tracks (i.e. Spire Theme).
-				 Ambient tracks loop continually, generally with a "pad" track (that is either a single or short, looping track),
-				 with "decorator" tracks playing simultaneously and randomly based on the pad track's BMP, either in a one-shot
-				 fashion or with a random number of loops and possibly with and "out" track.
-*/
+// File: MusicDataAsset.h
+// Description: Defines all music for a specific age. 
+//	SingleMusicTracks are complete, individual songs, such as "Full" or "Inst" tracks(i.e.Spire Theme).
+//	Ambient tracks loop continually, generally with a "pad" track(that is either a single or short, looping track),
+//	with "decorator" tracks playing simultaneously and randomly based on the pad track's BMP, either in a one-shot
+//	fashion or with a random number of loops and possibly with and "out" track.
+// 
+// Author: Andrew Sales
+// Created: August 2025
 
 
 #pragma once

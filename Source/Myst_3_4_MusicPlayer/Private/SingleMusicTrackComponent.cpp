@@ -1,4 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// File: SingleMusicTrackComponent.cpp
+// Description: A component spawned by MusicPlayerComponent in order to play single, one-shot music tracks.
+// 
+// Author: Andrew Sales
+// Created: August 2025
 
 
 #include "SingleMusicTrackComponent.h"

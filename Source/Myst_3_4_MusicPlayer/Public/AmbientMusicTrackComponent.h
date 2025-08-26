@@ -1,4 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// File: AmbientMusicTrackComponent.h
+// Description: A component that a spawned by MusicPlayerComponent in order to facilitate playing ambient music track. This component
+// will spawn up to three DecoratorComponents at a time that are attached to it. 
+// 
+// Author: Andrew Sales
+// Created: August 2025
 
 #pragma once
 

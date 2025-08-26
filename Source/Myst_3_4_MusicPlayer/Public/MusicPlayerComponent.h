@@ -1,4 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// File: MusicPlayerComponent.h
+// Description: A single instance of this component should be attached to the player character. It will in turn create either SingleMusicTrackComponent
+// AmbientMusicTrackComponent instances to play any specified type of music track.
+// 
+// Author: Andrew Sales
+// Created: August 2025
 
 #pragma once
 

@@ -1,4 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// File: DecoratorComponent.h
+// Description: A component spawned by AmbientMusicTrackComponent that encapsulated the functionality of a decorator, a pad or other short track
+// that will play concurrently with other similar tracks.
+// 
+// Author: Andrew Sales
+// Created: August 2025
 
 #pragma once
 

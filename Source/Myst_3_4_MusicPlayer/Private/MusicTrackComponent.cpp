@@ -1,4 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// File: MusicTrackComponent.cpp
+// Description: Parent class for both AmbientMusicTrackComponent and SingleMusicTrackComponent. Contains shared variables and functions to be overridden in 
+// child classes.
+// 
+// Author: Andrew Sales
+// Created: August 2025
 
 
 #include "MusicTrackComponent.h"
