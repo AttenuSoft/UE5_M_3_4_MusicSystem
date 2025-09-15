@@ -112,6 +112,18 @@ BP_MusicTrackTrigger:
   will clear the track specified in Track Name, and Clear All Tracks, which will clear any track currently playing regardless of Track Name. 
 
 
+Demonstrations of functionality:
+Tomahna Amient	 			  							https://www.youtube.com/watch?v=KKJLdQ0avTM
+J'Nanin Observatory Ambient 							https://www.youtube.com/watch?v=EOWRv5-ZSgg
+Amateria Theme Ambient									https://www.youtube.com/watch?v=KQq35AmP8TU
+Edanna Deadwood Ridge Ambient							https://www.youtube.com/watch?v=3M73JM7Gk38
+J'Nanin Island Ambient with Myst III: Exile visuals 	https://www.youtube.com/watch?v=YtZYDJR5PEA
+
+
+
+
+
+
 
 
 
